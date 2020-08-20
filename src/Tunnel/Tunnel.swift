@@ -90,14 +90,14 @@ public class Tunnel: NSObject, SocketDelegate {
         
         self.proxySocket.openSocket()
         self._status = .readingRequest
-        self.observer?.signal(.opened(self))
+        self.observer?.signal(.opened(self)) //枚举信号， 通道运行 提示当前socket状态，即行为状态
     }
     
     /**
      Close the tunnel elegantly.
      */
     func close() {
-        observer?.signal(.closeCalled(self))
+        observer?.signal(.closeCalled(self)) //枚举信号， 通道运行 提示当前socket状态，即行为状态
         
         guard !self.isCancelled else {
             return
@@ -139,7 +139,18 @@ public class Tunnel: NSObject, SocketDelegate {
             }
         }
     }
-    
+    fileprivate func openAdapter(for session: ConnectSession) {
+        guard !isCancelled else {
+            return
+        }
+        
+        let manager = RuleManager.currentManager
+        let factory = manager.match(session)!
+        adapterSocket = factory.getAdapterFor(session: session)
+        adapterSocket!.delegate = self
+        adapterSocket!.openSocketWith(session: session)
+    }
+  //MARK: - socketDelegate -
     public func didReceive(session: ConnectSession, from: ProxySocket) {
         guard !isCancelled else {
             return
@@ -165,17 +176,7 @@ public class Tunnel: NSObject, SocketDelegate {
         }
     }
     
-    fileprivate func openAdapter(for session: ConnectSession) {
-        guard !isCancelled else {
-            return
-        }
-        
-        let manager = RuleManager.currentManager
-        let factory = manager.match(session)!
-        adapterSocket = factory.getAdapterFor(session: session)
-        adapterSocket!.delegate = self
-        adapterSocket!.openSocketWith(session: session)
-    }
+
     
     public func didBecomeReadyToForwardWith(socket: SocketProtocol) {
         guard !isCancelled else {
