@@ -21,9 +21,8 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         } else {
             self.socket = GCDAsyncSocket(delegate: nil, delegateQueue: QueueFactory.getQueue(), socketQueue: QueueFactory.getQueue())
         }
-        
-        super.init()
 
+        super.init()
         self.socket.synchronouslySetDelegate(self)
     }
 

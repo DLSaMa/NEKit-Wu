@@ -1,6 +1,6 @@
 import Foundation
 
-/// The socket which encapsulates the logic to handle connection to proxies.
+/// The socket which encapsulates the logic to handle connection to proxies.  封装逻辑的套接字，用于处理与代理的连接。
 open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
     /// Received `ConnectSession`.
     public var session: ConnectSession?
