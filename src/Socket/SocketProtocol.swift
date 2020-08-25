@@ -1,28 +1,18 @@
 import Foundation
 
 /**
- The current connection status of the socket.
-
- - Invalid:       The socket is just created but never connects.
- - Connecting:    The socket is connecting.
- - Established:   The connection is established.
- - Disconnecting: The socket is disconnecting.
- - Closed:        The socket is closed.
+ socket的当前连接状态。
+ -无效：仅创建了socket，但从未连接。
+ -正在连接：插座正在连接。
+ -已建立：连接已建立。
+ -断开连接：插座正在断开连接。
+ -闭合：插座已闭合。
  */
 public enum SocketStatus {
-    /// The socket is just created but never connects.
     case invalid,
-
-    /// The socket is connecting.
     connecting,
-
-    /// The connection is established.
     established,
-
-    /// The socket is disconnecting.
     disconnecting,
-
-    /// The socket is closed.
     closed
 }
 
@@ -30,126 +20,90 @@ public enum SocketStatus {
 ///
 /// Any concrete implementation does not need to be thread-safe.
 public protocol SocketProtocol: class {
-    /// The underlying TCP socket transmitting data.
-    var socket: RawTCPSocketProtocol! { get }
-
-    /// The delegate instance.
+    var socket: RawTCPSocketProtocol! { get }//遵循此协议的对象
+    
     var delegate: SocketDelegate? { get set }
-
-    /// The current connection status of the socket.
     var status: SocketStatus { get }
-
-//    /// The description of the currect status.
-//    var statusDescription: String { get }
-
-    /// If the socket is disconnected.
     var isDisconnected: Bool { get }
-
-    /// The type of the socket.
     var typeName: String { get }
 
     var readStatusDescription: String { get }
-
     var writeStatusDescription: String { get }
 
-    /**
-     Read data from the socket.
-
-     - warning: This should only be called after the last read is finished, i.e., `delegate?.didReadData()` is called.
-     */
     func readData()
 
     /**
-     Send data to remote.
+    将数据发送到远程。
 
-     - parameter data: Data to send.
-     - warning: This should only be called after the last write is finished, i.e., `delegate?.didWriteData()` is called.
+     -参数数据：要发送的数据。
+     -警告：仅在最后一次写入完成后才调用此函数，即调用`delegate？.didWriteData（）`。
      */
     func write(data: Data)
 
-    /**
-     Disconnect the socket elegantly.
-     */
-    func disconnect(becauseOf error: Error?)
+    func disconnect(becauseOf error: Error?)//断开连接
 
-    /**
-     Disconnect the socket immediately.
-     */
-    func forceDisconnect(becauseOf error: Error?)
+    func forceDisconnect(becauseOf error: Error?)// 强制断开连接
 }
 
+//实现默认属性
 extension SocketProtocol {
     /// If the socket is disconnected.
     public var isDisconnected: Bool {
         return status == .closed || status == .invalid
     }
-
     public var typeName: String {
         return String(describing: type(of: self))
     }
-
     public var readStatusDescription: String {
         return "\(status)"
     }
-
     public var writeStatusDescription: String {
         return "\(status)"
     }
 }
 
-/// The delegate protocol to handle the events from a socket.
+/// 委托协议，用于处理socket中的事件。
 public protocol SocketDelegate : class {
-    /**
-     The socket did connect to remote.
 
-     - parameter adapterSocket: The connected socket.
-     */
-    func didConnectWith(adapterSocket: AdapterSocket)
+    func didConnectWith(adapterSocket: AdapterSocket) //哪一个socket 链接到远程
 
     /**
-     The socket did disconnect.
-
-     This should only be called once in the entire lifetime of a socket. After this is called, the delegate will not receive any other events from that socket and the socket should be released.
-
-     - parameter socket: The socket which did disconnect.
+     插座没有断开。
+     在socket的整个生命周期中，只能调用一次。调用此方法后，委托将不会从该socket接收任何其他事件，并且应该释放该socket。
+     -参数socket：断开连接的socket。
      */
     func didDisconnectWith(socket: SocketProtocol)
 
     /**
-     The socket did read some data.
-
-     - parameter data:    The data read from the socket.
-     - parameter from:    The socket where the data is read from.
+     socket确实读取了一些数据。
+     -参数数据：从socket读取的数据。
+     -参数自：从中读取数据的socket。
      */
     func didRead(data: Data, from: SocketProtocol)
 
     /**
-     The socket did send some data.
-
-     - parameter data:    The data which have been sent to remote (acknowledged). Note this may not be available since the data may be released to save memory.
-     - parameter by:      The socket where the data is sent out.
+     socket确实发送了一些数据。
+     -参数数据：已发送到远程（已确认）的数据。请注意，这可能不可用，因为可能会释放数据以节省内存。
+     -参数依据：发送数据的socket。
      */
     func didWrite(data: Data?, by: SocketProtocol)
 
     /**
-     The socket is ready to forward data back and forth.
-
-     - parameter socket: The socket which becomes ready to forward data.
+     socket已准备好来回转发数据。
+     -参数socket：已准备好转发数据的socket。
      */
     func didBecomeReadyToForwardWith(socket: SocketProtocol)
 
     /**
-     Did receive a `ConnectSession` from local now it is time to connect to remote.
-
-     - parameter session: The received `ConnectSession`.
-     - parameter from:    The socket where the `ConnectSession` is received.
+     确实从本地收到了“ ConnectSession”，现在该连接远程了。、
+     -参数会话：接收的`ConnectSession`。
+     -参数来自：接收`ConnectSession`的socket。
      */
     func didReceive(session: ConnectSession, from: ProxySocket)
 
     /**
-     The adapter socket decided to replace itself with a new `AdapterSocket` to connect to remote.
-
-     - parameter newAdapter: The new `AdapterSocket` to replace the old one.
+     适配器socket决定用一个新的“ AdapterSocket”代替自身以连接到远程服务器。
+     -参数newAdapter：新的`AdapterSocket`代替旧的。
      */
     func updateAdapterWith(newAdapter: AdapterSocket)
 }

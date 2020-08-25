@@ -1,6 +1,6 @@
 import Foundation
 
-/// The socket which encapsulates the logic to handle connection to proxies.
+/// 封装逻辑的socket，用于处理与代理的连接。
 open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
     /// Received `ConnectSession`.
     public var session: ConnectSession?
@@ -26,12 +26,9 @@ open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
      - parameter socket: The raw TCP socket.
      */
     public init(socket: RawTCPSocketProtocol, observe: Bool = true) {
-        self.socket = socket
-
+        self.socket = socket //来自协议的属性 ，socket
         super.init()
-
         self.socket.delegate = self
-
         if observe {
             observer = ObserverFactory.currentFactory?.getObserverForProxySocket(self)
         }
@@ -49,9 +46,8 @@ open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
     }
 
     /**
-     Response to the `AdapterSocket` on the other side of the `Tunnel` which has succefully connected to the remote server.
-
-     - parameter adapter: The `AdapterSocket`.
+    对已成功连接到远程服务器的“隧道”另一侧的“ AdapterSocket”的响应。
+     参数适配器：AdapterSocket。
      */
     open func respondTo(adapter: AdapterSocket) {
         guard !isCancelled else {
@@ -117,60 +113,31 @@ open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
         observer?.signal(.forceDisconnectCalled(self))
     }
 
-    // MARK: SocketProtocol Implementation
+    // MARK: SocketProtocol 实现
 
-    /// The underlying TCP socket transmitting data.
-    public var socket: RawTCPSocketProtocol!
-
-    /// The delegate instance.
-    weak public var delegate: SocketDelegate?
-
+    public var socket: RawTCPSocketProtocol!///底层的TCPsocket传输数据。
+    weak public var delegate: SocketDelegate?///委托实例。
     var _status: SocketStatus = .established
-    /// The current connection status of the socket.
-    public var status: SocketStatus {
+    public var status: SocketStatus {///socket的当前连接状态。
         return _status
     }
 
-    // MARK: RawTCPSocketDelegate Protocol Implementation
-    /**
-     The socket did disconnect.
+    // MARK: RawTCPSocketDelegate 实现  
 
-     - parameter socket: The socket which did disconnect.
-     */
     open func didDisconnectWith(socket: RawTCPSocketProtocol) {
         _status = .closed
         observer?.signal(.disconnected(self))
-        delegate?.didDisconnectWith(socket: self)
+        delegate?.didDisconnectWith(socket: self)  //其delegate  (SocketDelegate) 是Tunnel
     }
 
-    /**
-     The socket did read some data.
-
-     - parameter data:    The data read from the socket.
-     - parameter withTag: The tag given when calling the `readData` method.
-     - parameter from:    The socket where the data is read from.
-     */
     open func didRead(data: Data, from: RawTCPSocketProtocol) {
         observer?.signal(.readData(data, on: self))
     }
 
-    /**
-     The socket did send some data.
-
-     - parameter data:    The data which have been sent to remote (acknowledged). Note this may not be available since the data may be released to save memory.
-     - parameter from:    The socket where the data is sent out.
-     */
     open func didWrite(data: Data?, by: RawTCPSocketProtocol) {
         observer?.signal(.wroteData(data, on: self))
     }
 
-    /**
-     The socket did connect to remote.
-
-     - note: This never happens for `ProxySocket`.
-
-     - parameter socket: The connected socket.
-     */
     open func didConnectWith(socket: RawTCPSocketProtocol) {
 
     }

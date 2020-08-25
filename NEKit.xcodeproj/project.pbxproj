@@ -719,9 +719,11 @@
 		36411A6B1D1A41BF005F4108 /* Socket */ = {
 			isa = PBXGroup;
 			children = (
+				36B1621E1CDDA0EA00F24C97 /* RawTCPSocketProtocol.swift */,
+				36B1621F1CDDA0EA00F24C97 /* SocketProtocol.swift */,
+				36B162121CDDA0EA00F24C97 /* RawSocket */,
 				36B162311CDDA0F300F24C97 /* AdapterSocket */,
 				36411A671D1A3A71005F4108 /* ProxySocket */,
-				36B1621F1CDDA0EA00F24C97 /* SocketProtocol.swift */,
 			);
 			path = Socket;
 			sourceTree = "<group>";
@@ -778,7 +780,6 @@
 				36C63DFF1D02BDC700A00CA2 /* IPStack */,
 				36B162661CDDD00B00F24C97 /* Messages */,
 				36B162631CDDCDFC00F24C97 /* ProxyServer */,
-				36B162121CDDA0EA00F24C97 /* RawSocket */,
 				36B1620B1CDDA0E000F24C97 /* Rule */,
 				36411A6B1D1A41BF005F4108 /* Socket */,
 				36AA9D281DF434CD008273CC /* Tunnel */,
@@ -889,7 +890,6 @@
 				36B1621A1CDDA0EA00F24C97 /* NWTCPSocket.swift */,
 				36C63DF51CFFDCAF00A00CA2 /* NWUDPSocket.swift */,
 				366EB5CC1CE06B5E00E0E942 /* RawSocketFactory.swift */,
-				36B1621E1CDDA0EA00F24C97 /* RawTCPSocketProtocol.swift */,
 				36BC589A1CF2A3D400E0E367 /* TUNTCPSocket.swift */,
 			);
 			path = RawSocket;

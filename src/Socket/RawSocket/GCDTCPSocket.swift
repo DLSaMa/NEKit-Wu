@@ -10,9 +10,9 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
     fileprivate var host: String?
 
     /**
-     Initailize an instance with `GCDAsyncSocket`.
+   用`GCDAsyncSocket`使实例化。
 
-     - parameter socket: The socket object to work with. If this is `nil`, then a new `GCDAsyncSocket` instance is created.
+     -参数socket：要使用的socket对象。如果为nil，则创建一个新的GCDAsyncSocket实例。
      */
     public init(socket: GCDAsyncSocket? = nil) {
         if let socket = socket {
@@ -27,7 +27,7 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         self.socket.synchronouslySetDelegate(self)
     }
 
-    // MARK: RawTCPSocketProtocol implementation
+    // MARK: RawTCPSocketProtocol 实现
 
     /// The `RawTCPSocketDelegate` instance.
     weak open var delegate: RawTCPSocketDelegate?
@@ -37,7 +37,7 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         return !socket.isDisconnected
     }
 
-    /// The source address.
+    /// 源地址
     open var sourceIPAddress: IPAddress? {
         guard let localHost = socket.localHost else {
             return nil
@@ -45,19 +45,19 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         return IPAddress(fromString: localHost)
     }
 
-    /// The source port.
+    /// 源端口.
     open var sourcePort: Port? {
         return Port(port: socket.localPort)
     }
 
-    /// The destination address.
+    /// 目标地址
     ///
     /// - note: Always returns `nil`.
     open var destinationIPAddress: IPAddress? {
         return nil
     }
 
-    /// The destination port.
+    /// 目标d端口
     ///
     /// - note: Always returns `nil`.
     open var destinationPort: Port? {
@@ -85,7 +85,6 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
 
     /**
      Disconnect the socket.
-
      The socket will disconnect elegantly after any queued writing data are successfully sent.
      */
     open func disconnect() {
@@ -101,7 +100,6 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
 
     /**
      Send data to remote.
-
      - parameter data: Data to send.
      - warning: This should only be called after the last write is finished, i.e., `delegate?.didWriteData()` is called.
      */
@@ -215,9 +213,9 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         }
     }
 
-    // MARK: Delegate methods for GCDAsyncSocket
+    // MARK: Delegate methods for GCDAsyncSocket 实现
     open func socket(_ sock: GCDAsyncSocket, didWriteDataWithTag tag: Int) {
-        delegate?.didWrite(data: nil, by: self)
+        delegate?.didWrite(data: nil, by: self)  // HTTPProxySocket 是其delegate ，实现了 （RawTCPSocketDelegate）
     }
 
     open func socket(_ sock: GCDAsyncSocket, didRead data: Data, withTag tag: Int) {
