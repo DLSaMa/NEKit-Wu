@@ -2,7 +2,7 @@ import Foundation
 import tun2socks
 import CocoaLumberjackSwift
 
-/// This class wraps around tun2socks to build a TCP only IP stack.
+///此类环绕tun2socks来构建仅TCP的IP堆栈。
 open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     /// The `TCPStack` singleton instance.
     public static var stack: TCPStack {

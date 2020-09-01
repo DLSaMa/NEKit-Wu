@@ -109,7 +109,7 @@ public class SOCKS5ProxySocket: ProxySocket {
         case .readingVersionIdentifierAndNumberOfMethods:
             data.withUnsafeBytes { pointer in
                 let p = pointer.bindMemory(to: Int8.self)
-                
+            
                 guard p.baseAddress!.pointee == 5 else {
                     // TODO: notify observer
                     self.disconnect()

@@ -12,7 +12,6 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
     fileprivate var closeAfterWriting = false
 
     fileprivate var scanner: StreamScanner?
-
     fileprivate var readLength: Int?
 
     /**

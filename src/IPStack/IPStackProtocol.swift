@@ -3,28 +3,22 @@ import Foundation
 /// The protocol defines an IP stack.
 public protocol IPStackProtocol: class {
     /**
-     Input a packet into the stack.
-
-     - parameter packet:  The IP packet.
-     - parameter version: The version of the IP packet, i.e., AF_INET, AF_INET6.
-
-     - returns: If the stack takes in this packet. If the packet is taken in, then it won't be processed by other IP stacks.
+     将数据包输入到堆栈中。
+     -参数包：IP包。
+     -参数版本：IP数据包的版本，即AF_INET，AF_INET6。
+     -返回：如果堆栈接收此数据包。如果数据包被接收，则其他IP堆栈将不会对其进行处理。 区分 ipv4  ipv6
      */
     func input(packet: Data, version: NSNumber?) -> Bool
 
-    /// This is called when this stack decided to output some IP packet. This is set automatically when the stack is registered to some interface.
-    ///
-    /// The parameter is the safe as the `inputPacket`.
-    ///
-    /// - note: This block is thread-safe.
+ ///当此堆栈决定输出某些IP数据包时调用此方法。当堆栈注册到某个接口时，此设置会自动设置。
+    ///该参数作为“ inputPacket”是安全的。
+    ///-注意：此块是线程安全的。
     var outputFunc: (([Data], [NSNumber]) -> Void)! { get set }
 
     func start()
-    
     /**
-     Stop the stack from running.
-
-     This is called when the interface this stack is registered to stop to processing packets and will be released soon.
+     停止堆栈运行。
+     当注册该堆栈的接口停止处理数据包并将很快释放该接口时，将调用此方法。
      */
     func stop()
 }

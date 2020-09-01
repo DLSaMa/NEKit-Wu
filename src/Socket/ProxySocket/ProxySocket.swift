@@ -1,7 +1,7 @@
 import Foundation
 
 /// The socket which encapsulates the logic to handle connection to proxies.  封装逻辑的套接字，用于处理与代理的连接。
-open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
+open class ProxySocket: NSObject, SocketProtocol {
     /// Received `ConnectSession`.
     public var session: ConnectSession?
 
@@ -131,48 +131,51 @@ open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
         return _status
     }
 
-    // MARK: RawTCPSocketDelegate Protocol Implementation
-    /**
-     The socket did disconnect.
+ 
 
-     - parameter socket: The socket which did disconnect.
-     */
-    open func didDisconnectWith(socket: RawTCPSocketProtocol) {
-        _status = .closed
-        observer?.signal(.disconnected(self))
-        delegate?.didDisconnectWith(socket: self)
-    }
+}
 
-    /**
-     The socket did read some data.
+extension ProxySocket : RawTCPSocketDelegate{
+       // MARK: RawTCPSocketDelegate Protocol Implementation
+        /**
+         The socket did disconnect.
 
-     - parameter data:    The data read from the socket.
-     - parameter withTag: The tag given when calling the `readData` method.
-     - parameter from:    The socket where the data is read from.
-     */
-    open func didRead(data: Data, from: RawTCPSocketProtocol) {
-        observer?.signal(.readData(data, on: self))
-    }
+         - parameter socket: The socket which did disconnect.
+         */
+       
+        open func didDisconnectWith(socket: RawTCPSocketProtocol) {
+            _status = .closed
+            observer?.signal(.disconnected(self))
+            delegate?.didDisconnectWith(socket: self)
+        }
 
-    /**
-     The socket did send some data.
+        /**
+         The socket did read some data.
 
-     - parameter data:    The data which have been sent to remote (acknowledged). Note this may not be available since the data may be released to save memory.
-     - parameter from:    The socket where the data is sent out.
-     */
-    open func didWrite(data: Data?, by: RawTCPSocketProtocol) {
-        observer?.signal(.wroteData(data, on: self))
-    }
+         - parameter data:    The data read from the socket.
+         - parameter withTag: The tag given when calling the `readData` method.
+         - parameter from:    The socket where the data is read from.
+         */
+        open func didRead(data: Data, from: RawTCPSocketProtocol) {
+            observer?.signal(.readData(data, on: self))
+        }
 
-    /**
-     The socket did connect to remote.
+        /**
+         The socket did send some data.
 
-     - note: This never happens for `ProxySocket`.
+         - parameter data:    The data which have been sent to remote (acknowledged). Note this may not be available since the data may be released to save memory.
+         - parameter from:    The socket where the data is sent out.
+         */
+        open func didWrite(data: Data?, by: RawTCPSocketProtocol) {
+            observer?.signal(.wroteData(data, on: self))
+        }
 
-     - parameter socket: The connected socket.
-     */
-    open func didConnectWith(socket: RawTCPSocketProtocol) {
+        /**
+         The socket did connect to remote.
+         - note: This never happens for `ProxySocket`.
+         - parameter socket: The connected socket.
+         */
+        open func didConnectWith(socket: RawTCPSocketProtocol) {
 
-    }
-
+        }
 }

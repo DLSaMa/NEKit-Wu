@@ -16,28 +16,27 @@ func == (left: ConnectInfo, right: ConnectInfo) -> Bool {
         left.sourcePort == right.sourcePort
 }
 
+
 /// This stack tranmits UDP packets directly.
 public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
     fileprivate var activeSockets: [ConnectInfo: NWUDPSocket] = [:]
     public var outputFunc: (([Data], [NSNumber]) -> Void)!
-
     fileprivate let queue: DispatchQueue = DispatchQueue(label: "NEKit.UDPDirectStack.SocketArrayQueue", attributes: [])
 
     public init() {}
     
+    
+    //MARK:IPStackProtocol 协议实现
     /**
-     Input a packet into the stack.
-
-     - note: Only process IPv4 UDP packet as of now.
-
-     - parameter packet:  The IP packet.
-     - parameter version: The version of the IP packet, i.e., AF_INET, AF_INET6.
-
-     - returns: If the stack accepts in this packet. If the packet is accepted, then it won't be processed by other IP stacks.
+     将数据包输入到堆栈中。
+     -注意：到目前为止，仅处理IPv4 UDP数据包。
+     -参数包：IP包。
+     -参数版本：IP数据包的版本，即AF_INET，AF_INET6。
+     -返回：如果堆栈在此数据包中接受。如果数据包被接受，则其他IP堆栈将不会对其进行处理。
      */
     public func input(packet: Data, version: NSNumber?) -> Bool {
         if let version = version {
-            // we do not process IPv6 packets now
+            // 处理不了IPV6
             if version.int32Value == AF_INET6 {
                 return false
             }
@@ -52,7 +51,6 @@ public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
     public func start() {
         
     }
-
     public func stop() {
         queue.async {
             for socket in self.activeSockets.values {
@@ -62,6 +60,9 @@ public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
         }
     }
 
+    
+    
+    
     fileprivate func input(_ packetData: Data) {
         guard let packet = IPPacket(packetData: packetData) else {
             return
@@ -158,3 +159,4 @@ public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
         activeSockets.removeValue(forKey: info)
     }
 }
+
