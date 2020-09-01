@@ -10,15 +10,12 @@ public enum TransportProtocol: UInt8 {
 }
 
 /// The class to process and build IP packet.
-///
 /// - note: Only IPv4 is supported as of now.
 open class IPPacket {
     /**
-     Get the version of the IP Packet without parsing the whole packet.
-     
-     - parameter data: The data containing the whole IP packet.
-     
-     - returns: The version of the packet. Returns `nil` if failed to parse the packet.
+   在不解析整个数据包的情况下获取IP数据包的版本。
+     -参数数据：包含整个IP数据包的数据。
+     -返回：数据包的版本。如果解析数据包失败，则返回“ nil”。
      */
     public static func peekIPVersion(_ data: Data) -> IPVersion? {
         guard data.count >= 20 else {
@@ -30,11 +27,9 @@ open class IPPacket {
     }
 
     /**
-     Get the protocol of the IP Packet without parsing the whole packet.
-     
-     - parameter data: The data containing the whole IP packet.
-     
-     - returns: The protocol of the packet. Returns `nil` if failed to parse the packet.
+     在不解析整个数据包的情况下获取IP数据包的协议。
+     -参数数据：包含整个IP数据包的数据。
+     -返回：数据包的协议。如果解析数据包失败，则返回“ nil”。
      */
     public static func peekProtocol(_ data: Data) -> TransportProtocol? {
         guard data.count >= 20 else {
@@ -45,11 +40,9 @@ open class IPPacket {
     }
 
     /**
-     Get the source IP address of the IP packet without parsing the whole packet.
-     
-     - parameter data: The data containing the whole IP packet.
-     
-     - returns: The source IP address of the packet. Returns `nil` if failed to parse the packet.
+     在不解析整个数据包的情况下获取IP数据包的源IP地址。
+     -参数数据：包含整个IP数据包的数据。
+     -返回：数据包的源IP地址。如果解析数据包失败，则返回“ nil”。
      */
     public static func peekSourceAddress(_ data: Data) -> IPAddress? {
         guard data.count >= 20 else {
@@ -60,11 +53,9 @@ open class IPPacket {
     }
 
     /**
-     Get the destination IP address of the IP packet without parsing the whole packet.
-     
-     - parameter data: The data containing the whole IP packet.
-     
-     - returns: The destination IP address of the packet. Returns `nil` if failed to parse the packet.
+     在不解析整个数据包的情况下获取IP数据包的目标IP地址。
+     -参数数据：包含整个IP数据包的数据。
+     -返回：数据包的目标IP地址。如果解析数据包失败，则返回“ nil”。
      */
     public static func peekDestinationAddress(_ data: Data) -> IPAddress? {
         guard data.count >= 20 else {
@@ -75,13 +66,10 @@ open class IPPacket {
     }
 
     /**
-     Get the source port of the IP packet without parsing the whole packet.
-     
-     - parameter data: The data containing the whole IP packet.
-     
-     - returns: The source IP address of the packet. Returns `nil` if failed to parse the packet.
-     
-     - note: Only TCP and UDP packet has port field.
+     获取IP数据包的源端口，而不解析整个数据包。
+     -参数数据：包含整个IP数据包的数据。
+     -返回：数据包的源IP地址。如果解析数据包失败，则返回“ nil”。
+     -注意：仅TCP和UDP数据包具有端口字段。
      */
     public static func peekSourcePort(_ data: Data) -> Port? {
         guard let proto = peekProtocol(data) else {
@@ -103,13 +91,10 @@ open class IPPacket {
     }
 
     /**
-     Get the destination port of the IP packet without parsing the whole packet.
-     
-     - parameter data: The data containing the whole IP packet.
-     
-     - returns: The destination IP address of the packet. Returns `nil` if failed to parse the packet.
-     
-     - note: Only TCP and UDP packet has port field.
+     在不解析整个数据包的情况下获取IP数据包的目标端口。
+     -参数数据：包含整个IP数据包的数据。
+     -返回：数据包的目标IP地址。如果解析数据包失败，则返回“ nil”。
+     -注意：仅TCP和UDP数据包具有端口字段。
      */
     public static func peekDestinationPort(_ data: Data) -> Port? {
         guard let proto = peekProtocol(data) else {
@@ -136,21 +121,20 @@ open class IPPacket {
     /// The length of the IP packet header.
     open var headerLength: UInt8 = 20
 
-    /// This contains the DSCP and ECN of the IP packet.
-    ///
-    /// - note: Since we can not send custom IP packet out with NetworkExtension, this is useless and simply ignored.
+    ///包含IP数据包的DSCP和ECN。
+    ///-注意：由于我们无法使用NetworkExtension发送自定义IP数据包，因此这是无用的，只是被忽略了。
     open var tos: UInt8 = 0
 
-    /// This should be the length of the datagram.
-    /// This value is not read from header since NEPacketTunnelFlow has already taken care of it for us.
+    ///这应该是数据报的长度。
+    ///由于NEPacketTunnelFlow已经为我们处理了此值，因此不会从标头中读取该值。
     open var totalLength: UInt16 {
         return UInt16(packetData.count)
     }
 
-    /// Identification of the current packet.
+    ///当前数据包的标识。
     ///
-    /// - note: Since we do not support fragment, this is ignored and always will be zero.
-    /// - note: Theoratically, this should be a sequentially increasing number. It probably will be implemented.
+    ///-注意：由于我们不支持片段，因此将忽略该片段，并且始终为零。
+    ///-注意：从理论上讲，这应该是一个递增的数字。它可能会实现。
     var identification: UInt16 = 0
 
     /// Offset of the current packet.

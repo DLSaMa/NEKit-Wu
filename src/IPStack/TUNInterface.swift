@@ -1,37 +1,34 @@
 import Foundation
 import NetworkExtension
 
-/// TUN interface provide a scheme to register a set of IP Stacks (implementing `IPStackProtocol`) to process IP packets from a virtual TUN interface.
+/// TUN接口提供了一种方案，用于注册一组IP堆栈（实现“ IPStackProtocol”）以处理来自虚拟TUN接口的IP数据包。
 open class TUNInterface {
     fileprivate weak var packetFlow: NEPacketTunnelFlow?
     fileprivate var stacks: [IPStackProtocol] = []
     
     /**
-     Initialize TUN interface with a packet flow.
-     
-     - parameter packetFlow: The packet flow to work with.
+  用数据包流初始化TUN接口。
+     -参数packetFlow：要使用的数据包流。
      */
     public init(packetFlow: NEPacketTunnelFlow) {
         self.packetFlow = packetFlow
     }
     
     /**
-     Start processing packets, this should be called after registering all IP stacks.
-     
-     A stopped interface should never start again. Create a new interface instead.
+     开始处理数据包，注册所有IP堆栈后应调用此方法。
+     停止的接口永远不会再次启动。而是创建一个新界面。
      */
     open func start() {
         QueueFactory.executeOnQueueSynchronizedly {
             for stack in self.stacks {
                 stack.start()
             }
-            
             self.readPackets()
         }
     }
     
     /**
-     Stop processing packets, this should be called before releasing the interface.
+    停止处理数据包，应在释放接口之前调用它。
      */
     open func stop() {
         QueueFactory.executeOnQueueSynchronizedly {
@@ -45,11 +42,9 @@ open class TUNInterface {
     }
     
     /**
-     Register a new IP stack.
-     
-     When a packet is read from TUN interface (the packet flow), it is passed into each IP stack according to the registration order until one of them takes it in.
-     
-     - parameter stack: The IP stack to append to the stack list.
+     注册一个新的IP堆栈。
+     从TUN接口读取数据包时（数据包流），数据包将根据注册顺序传递到每个IP堆栈中，直到其中一个将其接收为止。
+     -参数堆栈：要添加到堆栈列表的IP堆栈。
      */
     open func register(stack: IPStackProtocol) {
         QueueFactory.executeOnQueueSynchronizedly {
@@ -69,7 +64,6 @@ open class TUNInterface {
                     }
                 }
             }
-            
             self.readPackets()
         }
     }

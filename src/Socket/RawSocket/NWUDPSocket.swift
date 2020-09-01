@@ -5,10 +5,9 @@ import CocoaLumberjackSwift
 /// The delegate protocol of `NWUDPSocket`.
 public protocol NWUDPSocketDelegate: class {
     /**
-     Socket did receive data from remote.
-     
-     - parameter data: The data.
-     - parameter from: The socket the data is read from.
+     套接字确实从远程接收数据。
+     -参数数据：数据。
+     -参数自：从中读取数据的套接字。
      */
     func didReceive(data: Data, from: NWUDPSocket)
     
@@ -29,14 +28,12 @@ public class NWUDPSocket: NSObject {
     /// The delegate instance.
     public weak var delegate: NWUDPSocketDelegate?
     
-    /// The time when the last activity happens.
-    ///
-    /// Since UDP do not have a "close" semantic, this can be an indicator of timeout.
+    ///上一次活动发生的时间。
+    ///由于UDP不具有“关闭”语义，因此这可以指示超时。
     public var lastActive: Date = Date()
     
     /**
-     Create a new UDP socket connecting to remote.
-     
+     创建一个新的UDP套接字连接到远程。
      - parameter host: The host.
      - parameter port: The port.
      */
@@ -61,7 +58,6 @@ public class NWUDPSocket: NSObject {
         timer.resume()
         
         session.addObserver(self, forKeyPath: #keyPath(NWUDPSession.state), options: [.new], context: nil)
-        
         session.setReadHandler({ [ weak self ] dataArray, error in
             self?.queueCall {
                 guard let sSelf = self else {
