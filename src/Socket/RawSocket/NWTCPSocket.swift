@@ -187,16 +187,16 @@ public class NWTCPSocket: NSObject, RawTCPSocketProtocol {
         readDataTo(data: data, maxLength: 0)
     }
 
-    // Actually, this method is available as `- (void)readToPattern:(id)arg1 maximumLength:(unsigned int)arg2 completionHandler:(id /* block */)arg3;`
-    // which is sadly not available in public header for some reason I don't know.
-    // I don't want to do it myself since This method is not trival to implement and I don't like reinventing the wheel.
-    // Here is only the most naive version, which may not be the optimal if using with large data blocks.
+    //实际上，此方法可以使用`-（void）readToPattern：（id）arg1 maximumLength：（unsigned int）arg2completeHandler：（id / * block * /）arg3;`
+    //不幸的是，由于某些未知原因，它在public标头中不可用。
+    //我不想自己做，因为这种方法实施起来并不容易，而且我不喜欢重新发明轮子。
+    //这只是最幼稚的版本，如果与大数据块一起使用可能不是最佳选择。
     /**
-     Read data until a specific pattern (including the pattern).
+     读取数据直到特定的模式（包括模式）。
      
-     - parameter data: The pattern.
-     - parameter maxLength: The max length of data to scan for the pattern.
-     - warning: This should only be called after the last read is finished, i.e., `delegate?.didReadData()` is called.
+     -参数数据：模式。
+     -参数maxLength：扫描模式的最大数据长度。
+     -警告：仅应在最后一次读取完成后调用，即调用`delegate？.didReadData（）`。
      */
     public func readDataTo(data: Data, maxLength: Int) {
         guard !cancelled else {

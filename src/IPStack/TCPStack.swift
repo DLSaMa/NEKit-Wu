@@ -3,6 +3,9 @@ import tun2socks
 import CocoaLumberjackSwift
 
 ///此类环绕tun2socks来构建仅TCP的IP堆栈。
+  /*
+ TCPStack处理TCP数据包，并将它们重新组合回TCP流，然后将其发送到proxyServer变量指定的代理服务器。你必须设置proxyServer在注册前TCPStack到TUNInterface。
+ */
 open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     /// The `TCPStack` singleton instance.
     public static var stack: TCPStack {
@@ -12,12 +15,11 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     }
     fileprivate static let _stack: TCPStack = TCPStack()
     
-    /// The proxy server that handles connections accepted from this stack.
-    ///
-    /// - warning: This must be set before `TCPStack` is registered to `TUNInterface`.
+   ///处理该堆栈接受的连接的代理服务器。
+    ///-警告：必须在将TCPStack注册到TUNInterface之前进行设置。
     open weak var proxyServer: ProxyServer?
     
-    /// This is set automatically when the stack is registered to some interface.
+    ///当堆栈注册到某个接口时，将自动设置此项。
     open var outputFunc: (([Data], [NSNumber]) -> Void)! {
         get {
             return TSIPStack.stack.outputBlock
@@ -34,14 +36,11 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     }
     
     /**
-     Input a packet into the stack.
-     
-     - note: Only process IPv4 TCP packet as of now, since stable lwip does not support ipv6 yet.
-     
-     - parameter packet:  The IP packet.
-     - parameter version: The version of the IP packet, i.e., AF_INET, AF_INET6.
-     
-     - returns: If the stack takes in this packet. If the packet is taken in, then it won't be processed by other IP stacks.
+     将数据包输入到堆栈中。
+     -注意：由于稳定的lwip目前尚不支持ipv6，因此目前仅处理IPv4 TCP数据包。
+     -参数包：IP包。
+     -参数版本：IP数据包的版本，即AF_INET，AF_INET6。
+     -返回：如果堆栈接收此数据包。如果数据包被接收，则其他IP堆栈将不会对其进行处理。
      */
     open func input(packet: Data, version: NSNumber?) -> Bool {
         if let version = version {

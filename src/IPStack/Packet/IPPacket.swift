@@ -14,11 +14,11 @@ public enum TransportProtocol: UInt8 {
 /// - note: Only IPv4 is supported as of now.
 open class IPPacket {
     /**
-     Get the version of the IP Packet without parsing the whole packet.
+   在不解析整个数据包的情况下获取IP数据包的版本。
      
-     - parameter data: The data containing the whole IP packet.
+     -参数数据：包含整个IP数据包的数据。
      
-     - returns: The version of the packet. Returns `nil` if failed to parse the packet.
+     -返回：数据包的版本。如果解析数据包失败，则返回“ nil”。
      */
     public static func peekIPVersion(_ data: Data) -> IPVersion? {
         guard data.count >= 20 else {
