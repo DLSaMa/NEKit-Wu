@@ -97,7 +97,6 @@ public protocol SocketDelegate : class {
 
      */
     func didDisconnectWith(socket: SocketProtocol)
-
     /**
      socket确实读取了一些数据。
 
@@ -106,7 +105,6 @@ public protocol SocketDelegate : class {
 
      */
     func didRead(data: Data, from: SocketProtocol)
-
     /**
 
     socket确实发送了一些数据。

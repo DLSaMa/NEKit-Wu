@@ -89,7 +89,7 @@ open class AdapterSocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
     }
 
     /**
-     Disconnect the socket elegantly.
+     优雅地断开插座。
      */
     open func disconnect(becauseOf error: Error? = nil) {
         _status = .disconnecting

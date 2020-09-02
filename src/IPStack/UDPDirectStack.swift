@@ -18,7 +18,7 @@ func == (left: ConnectInfo, right: ConnectInfo) -> Bool {
 
 
 /// This stack tranmits UDP packets directly.
-public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
+public class UDPDirectStack: IPStackProtocol {
     fileprivate var activeSockets: [ConnectInfo: NWUDPSocket] = [:]
     public var outputFunc: (([Data], [NSNumber]) -> Void)!
     fileprivate let queue: DispatchQueue = DispatchQueue(label: "NEKit.UDPDirectStack.SocketArrayQueue", attributes: [])
@@ -61,8 +61,7 @@ public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
     }
 
     
-    
-    
+
     fileprivate func input(_ packetData: Data) {
         guard let packet = IPPacket(packetData: packetData) else {
             return
@@ -132,31 +131,35 @@ public class UDPDirectStack: IPStackProtocol, NWUDPSocketDelegate {
         return (connectInfo, udpSocket)
     }
 
-    public func didReceive(data: Data, from: NWUDPSocket) {
-        guard let (connectInfo, _) = findSocket(connectInfo: nil, socket: from) else {
-            return
-        }
-
-        let packet = IPPacket()
-        packet.sourceAddress = connectInfo.destinationAddress
-        packet.destinationAddress = connectInfo.sourceAddress
-        let udpParser = UDPProtocolParser()
-        udpParser.sourcePort = connectInfo.destinationPort
-        udpParser.destinationPort = connectInfo.sourcePort
-        udpParser.payload = data
-        packet.protocolParser = udpParser
-        packet.transportProtocol = .udp
-        packet.buildPacket()
-
-        outputFunc([packet.packetData], [NSNumber(value: AF_INET as Int32)])
-    }
-    
-    public func didCancel(socket: NWUDPSocket) {
-        guard let (info, _) = findSocket(connectInfo: nil, socket: socket) else {
-            return
-        }
-        
-        activeSockets.removeValue(forKey: info)
-    }
+ 
+   
 }
 
+extension UDPDirectStack : NWUDPSocketDelegate{
+    public func didReceive(data: Data, from: NWUDPSocket) {
+         guard let (connectInfo, _) = findSocket(connectInfo: nil, socket: from) else {
+             return
+         }
+
+         let packet = IPPacket()
+         packet.sourceAddress = connectInfo.destinationAddress
+         packet.destinationAddress = connectInfo.sourceAddress
+         let udpParser = UDPProtocolParser()
+         udpParser.sourcePort = connectInfo.destinationPort
+         udpParser.destinationPort = connectInfo.sourcePort
+         udpParser.payload = data
+         packet.protocolParser = udpParser
+         packet.transportProtocol = .udp
+         packet.buildPacket()
+
+         outputFunc([packet.packetData], [NSNumber(value: AF_INET as Int32)])
+     }
+     
+    public func didCancel(socket: NWUDPSocket) {
+           guard let (info, _) = findSocket(connectInfo: nil, socket: socket) else {
+               return
+           }
+           
+           activeSockets.removeValue(forKey: info)
+       }
+}

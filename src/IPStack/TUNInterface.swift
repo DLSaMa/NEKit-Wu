@@ -57,7 +57,9 @@ open class TUNInterface {
         }
     }
     
+    //读取数据
     fileprivate func readPackets() {
+        //packets 和 version 各是一个对象数组，相对应的数组索引中的nsdata和nsnumber 代表一个数据包，
         packetFlow?.readPackets { packets, versions in
             QueueFactory.getQueue().async {
                 for (i, packet) in packets.enumerated() {

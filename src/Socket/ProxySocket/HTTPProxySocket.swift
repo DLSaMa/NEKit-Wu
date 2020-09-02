@@ -127,13 +127,9 @@ public class HTTPProxySocket: ProxySocket {
      -参数自：从中读取数据的套接字。
      */
     
-    //MARK:最终会从新连接的socket中读取数据并返回到prxySocket对象中的didRead接口中来。
+    //MARK:最终会从新连接的socket中读取数据并返回到prxySocket对象中的didRead接口中来。 proxySocket 是此类的代理
     /*
-     
-     
      从数据包中获取目标主机i地址与端口号，封装成ConnectSession对象，并回传给Tunnel对象的didReceive接口
-     
-     
      */
     override public func didRead(data: Data, from: RawTCPSocketProtocol) {
         super.didRead(data: data, from: from)  //只是调用一下observer

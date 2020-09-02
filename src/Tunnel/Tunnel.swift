@@ -206,6 +206,7 @@ public class Tunnel: NSObject, SocketDelegate {
         checkStatus()
     }
     
+    //
     public func didRead(data: Data, from socket: SocketProtocol) {
         if let socket = socket as? ProxySocket {
             observer?.signal(.proxySocketReadData(data, from: socket, on: self))
@@ -213,7 +214,7 @@ public class Tunnel: NSObject, SocketDelegate {
             guard !isCancelled else {
                 return
             }
-            adapterSocket!.write(data: data)
+            adapterSocket!.write(data: data) //数据流通
         } else if let socket = socket as? AdapterSocket {
             observer?.signal(.adapterSocketReadData(data, from: socket, on: self))
             
