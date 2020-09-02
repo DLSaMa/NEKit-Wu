@@ -38,14 +38,14 @@ public class Tunnel: NSObject, SocketDelegate {
     var adapterSocket: AdapterSocket?
     
     /// The delegate instance.
-    weak var delegate: TunnelDelegate?
+    weak var delegate: TunnelDelegate? //通道关闭的时候处理
      
-    var observer: Observer<TunnelEvent>? //使用Observer <T>来观察代理服务器和套接字中的事件。以DebugObserver.swift中的观察者为例。
+    var observer: Observer<TunnelEvent>? //使用Observer <T>来观察代理服务器和socket中的事件。以DebugObserver.swift中的观察者为例。
     
-    /// 指示准备好转发多少个套接字的数据。
+    /// 指示准备好转发多少个socket的数据。
     private var readySignal = 0
     
-    ///如果关闭隧道，则代理套接字和适配器套接字都将断开。
+    ///如果关闭隧道，则代理socket和适配器socket都将断开。
     var isClosed: Bool {
         return proxySocket.isDisconnected && (adapterSocket?.isDisconnected ?? true)
     }
@@ -81,23 +81,23 @@ public class Tunnel: NSObject, SocketDelegate {
     }
     
     /**
-     Start running the tunnel.
+        通道开始运行
      */
     func openTunnel() {
         guard !self.isCancelled else {
             return
         }
         
-        self.proxySocket.openSocket()
+        self.proxySocket.openSocket() //HTTPTCPSocket 按分析，最终会从新连接的socket中读取数据并返回到prxySocket对象中的didRead接口中来
         self._status = .readingRequest
-        self.observer?.signal(.opened(self))
+        self.observer?.signal(.opened(self)) //枚举信号， 通道运行 提示当前socket状态，即行为状态
     }
     
     /**
      Close the tunnel elegantly.
      */
     func close() {
-        observer?.signal(.closeCalled(self))
+        observer?.signal(.closeCalled(self)) //枚举信号， 通道运行 提示当前socket状态，即行为状态
         
         guard !self.isCancelled else {
             return
@@ -139,7 +139,18 @@ public class Tunnel: NSObject, SocketDelegate {
             }
         }
     }
-    
+    fileprivate func openAdapter(for session: ConnectSession) {
+        guard !isCancelled else {
+            return
+        }
+        
+        let manager = RuleManager.currentManager
+        let factory = manager.match(session)!
+        adapterSocket = factory.getAdapterFor(session: session)
+        adapterSocket!.delegate = self
+        adapterSocket!.openSocketWith(session: session)
+    }
+  //MARK: - socketDelegate -
     public func didReceive(session: ConnectSession, from: ProxySocket) {
         guard !isCancelled else {
             return
@@ -165,17 +176,7 @@ public class Tunnel: NSObject, SocketDelegate {
         }
     }
     
-    fileprivate func openAdapter(for session: ConnectSession) {
-        guard !isCancelled else {
-            return
-        }
-        
-        let manager = RuleManager.currentManager
-        let factory = manager.match(session)!
-        adapterSocket = factory.getAdapterFor(session: session)
-        adapterSocket!.delegate = self
-        adapterSocket!.openSocketWith(session: session)
-    }
+
     
     public func didBecomeReadyToForwardWith(socket: SocketProtocol) {
         guard !isCancelled else {

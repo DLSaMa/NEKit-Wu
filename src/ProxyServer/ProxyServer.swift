@@ -38,15 +38,10 @@ open class ProxyServer: NSObject, TunnelDelegate {
         type = "\(Swift.type(of: self))"
 
         super.init()
-
         self.observer = ObserverFactory.currentFactory?.getObserverForProxyServer(self)
     }
 
-    /**
-     Start the proxy server.
-     
-     - throws: 启动代理服务器时发生错误。
-     */
+    //启动代理服务器时发生错误。
     open func start() throws {
         QueueFactory.executeOnQueueSynchronizedly {
             GlobalIntializer.initalize()
@@ -54,26 +49,18 @@ open class ProxyServer: NSObject, TunnelDelegate {
         }
     }
 
-    /**
-     Stop the proxy server.
-     */
+    // Stop the proxy server.
     open func stop() {
         QueueFactory.executeOnQueueSynchronizedly {
             for tunnel in tunnels {
                 tunnel.forceClose()
             }
-
             observer?.signal(.stopped(self))
         }
     }
 
-    /**
-     Delegate method when the proxy server accepts a new ProxySocket from local.
-     
-     实施具体的代理服务器（例如HTTP代理服务器）时，服务器应在某个端口上侦听，然后将原始套接字包装在相应的ProxySocket子类中，然后调用此方法。
-     
-     - parameter socket: The accepted proxy socket.
-     */
+
+    //实施具体的代理服务器（例如HTTP代理服务器）时，服务器应在某个端口上侦听，然后将原始socket包装在相应的ProxySocket子类中，然后调用此方法。
     func didAcceptNewSocket(_ socket: ProxySocket) {
         observer?.signal(.newSocketAccepted(socket, onServer: self))
         let tunnel = Tunnel(proxySocket: socket)
@@ -83,15 +70,10 @@ open class ProxyServer: NSObject, TunnelDelegate {
     }
 
     // MARK: TunnelDelegate implementation
-
-    /**
-     Delegate method when a tunnel closed. The server will remote it internally.
-     
-     - parameter tunnel: The closed tunnel.
-     */
+    //隧道关闭时的委托方法。服务器将在内部对其进行远程管理。
     func tunnelDidClose(_ tunnel: Tunnel) {
         observer?.signal(.tunnelClosed(tunnel, onServer: self))
-        guard let index = tunnels.firstIndex(of: tunnel) else {
+        guard let index = tunnels.firstIndex(of: tunnel) else { //获得指定值在集合中的索引
             // things went strange
             return
         }
