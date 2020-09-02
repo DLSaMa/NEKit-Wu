@@ -721,9 +721,11 @@
 			children = (
 				36B1621F1CDDA0EA00F24C97 /* SocketProtocol.swift */,
 				36B1621E1CDDA0EA00F24C97 /* RawTCPSocketProtocol.swift */,
+
+				36B162121CDDA0EA00F24C97 /* RawSocket */,
 				36B162311CDDA0F300F24C97 /* AdapterSocket */,
 				36411A671D1A3A71005F4108 /* ProxySocket */,
-				36B162121CDDA0EA00F24C97 /* RawSocket */,
+
 			);
 			path = Socket;
 			sourceTree = "<group>";

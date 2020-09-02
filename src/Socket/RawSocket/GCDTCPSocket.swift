@@ -26,7 +26,7 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         self.socket.synchronouslySetDelegate(self)
     }
 
-    // MARK: RawTCPSocketProtocol implementation
+    // MARK: RawTCPSocketProtocol 实现
 
     /// The `RawTCPSocketDelegate` instance.
     weak open var delegate: RawTCPSocketDelegate?
@@ -214,7 +214,7 @@ open class GCDTCPSocket: NSObject, GCDAsyncSocketDelegate, RawTCPSocketProtocol 
         }
     }
 
-    // MARK: Delegate methods for GCDAsyncSocket
+    // MARK: - Delegate methods for GCDAsyncSocket 实现 -
     open func socket(_ sock: GCDAsyncSocket, didWriteDataWithTag tag: Int) {
         delegate?.didWrite(data: nil, by: self)
     }

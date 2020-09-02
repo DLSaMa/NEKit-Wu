@@ -21,9 +21,9 @@ open class ProxySocket: NSObject, SocketProtocol {
     }
 
     /**
-     Init a `ProxySocket` with a raw TCP socket.
+     用一个原始的TCP套接字初始化一个“ ProxySocket”。
 
-     - parameter socket: The raw TCP socket.
+     -参数套接字：原始TCP套接字。
      */
     public init(socket: RawTCPSocketProtocol, observe: Bool = true) {
         self.socket = socket
@@ -130,10 +130,27 @@ open class ProxySocket: NSObject, SocketProtocol {
     public var status: SocketStatus {
         return _status
     }
-
- 
-
-}
+//
+//<<<<<<< HEAD
+//    // MARK: RawTCPSocketDelegate Protocol 实现
+//    /**
+//     The socket did disconnect.
+//
+//     - parameter socket: The socket which did disconnect.
+//     */
+//    open func didDisconnectWith(socket: RawTCPSocketProtocol) {
+//        _status = .closed
+//        observer?.signal(.disconnected(self))
+//        delegate?.didDisconnectWith(socket: self)
+//    }
+//
+//    /**
+//     The socket did read some data.
+//=======
+// 
+//>>>>>>> d79782db0795a46a215202b9fd19efaca54a2611
+//
+//}
 
 extension ProxySocket : RawTCPSocketDelegate{
        // MARK: RawTCPSocketDelegate Protocol Implementation

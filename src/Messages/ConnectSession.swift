@@ -1,6 +1,6 @@
 import Foundation
 
-/// Representing all the information in one connect session.
+///在一个连接会话中表示所有信息。
 public final class ConnectSession {
     public enum EventSourceEnum {
         case proxy, adapter, tunnel
@@ -11,11 +11,11 @@ public final class ConnectSession {
     /// This is the host received in the request. May be a domain, a real IP or a fake IP.
     public let requestedHost: String
     
-    /// The real host for this session.
+   ///此会话的真正主机。
     ///
-    /// If the session is initailized with a host domain, then `host == requestedHost`.
-    /// Otherwise, the requested IP address is looked up in the DNS server to see if it corresponds to a domain if `fakeIPEnabled` is `true`.
-    /// Unless there is a good reason not to, any socket shoule connect based on this directly.
+    ///如果会话没有主机域，则`host == requestedHost`。
+    ///否则，如果“ fakeIPEnabled”为“ true”，则在DNS服务器中查找请求的IP地址，以查看其是否与域相对应。
+    ///除非有充分的理由不这样做，否则任何套接字应该直接基于此连接。
     public var host: String
     
     /// The requested port.

@@ -115,6 +115,9 @@ public class HTTPProxySocket: ProxySocket {
     
     
     
+
+    //MARK: 此处实现的是TCP
+
     // swiftlint:disable function_body_length
     // swiftlint:disable cyclomatic_complexity
     /**
@@ -166,10 +169,13 @@ public class HTTPProxySocket: ProxySocket {
         }
     }
     
+    
+    
+    
     /**
      The socket did send some data.
      
-     - parameter data:    The data which have been sent to remote (acknowledged). Note this may not be available since the data may be released to save memory.
+     - parameter data:    Th  e data which have been sent to remote (acknowledged). Note this may not be available since the data may be released to save memory.
      - parameter by:    The socket where the data is sent out.
      */
     override public func didWrite(data: Data?, by: RawTCPSocketProtocol) {
