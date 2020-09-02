@@ -33,7 +33,6 @@ open class TUNInterface {
     open func stop() {
         QueueFactory.executeOnQueueSynchronizedly {
             self.packetFlow = nil
-            
             for stack in self.stacks {
                 stack.stop()
             }

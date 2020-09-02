@@ -1,6 +1,6 @@
 import Foundation
 
-/// This adapter connects to remote directly.
+///该适配器直接连接到远程
 public class DirectAdapter: AdapterSocket {
     /// If this is set to `false`, then the IP address will be resolved by system.
     var resolveHost = false

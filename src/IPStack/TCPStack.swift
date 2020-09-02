@@ -62,7 +62,6 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     
     /**
      Stop the TCP stack.
-     
      After calling this, this stack should never be referenced. Use `TCPStack.stack` to get a new reference of the singleton.
      */
     open func stop() {
@@ -71,7 +70,7 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
         proxyServer = nil
     }
     
-    // MARK: TSIPStackDelegate Implementation
+    // MARK: TSIPStackDelegate 实现
     open func didAcceptTCPSocket(_ sock: TSTCPSocket) {
         DDLogDebug("Accepted a new socket from IP stack.")
         let tunSocket = TUNTCPSocket(socket: sock)
