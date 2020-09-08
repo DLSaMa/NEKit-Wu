@@ -2,21 +2,14 @@ import Foundation
 
 ///该适配器直接连接到远程
 public class DirectAdapter: AdapterSocket {
-    /// If this is set to `false`, then the IP address will be resolved by system.
+    /// 如果将其设置为“ false”，则系统将解析IP地址。
     var resolveHost = false
-
-    /**
-     Connect to remote according to the `ConnectSession`.
-
+    /** 根据`ConnectSession`连接到远程。
      - parameter session: The connect session.
      */
     override public func openSocketWith(session: ConnectSession) {
         super.openSocketWith(session: session)
-
-        guard !isCancelled else {
-            return
-        }
-
+        guard !isCancelled else { return}
         do {
             try socket.connectTo(host: session.host, port: Int(session.port), enableTLS: false, tlsSettings: nil)
         } catch let error {
@@ -25,6 +18,10 @@ public class DirectAdapter: AdapterSocket {
         }
     }
 
+
+}
+
+extension DirectAdapter:RawTCPSocketDelegate{
     /**
      The socket did connect to remote.
 

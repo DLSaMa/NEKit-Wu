@@ -4,7 +4,7 @@ import tun2socks
 /// The TCP socket build upon `TSTCPSocket`.
 ///
 /// - warning: This class is not thread-safe.
-public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
+public class TUNTCPSocket: TSTCPSocketDelegate {
     fileprivate let tsSocket: TSTCPSocket
     fileprivate var reading = false
     fileprivate var pendingReadData: Data = Data()
@@ -24,7 +24,65 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
         tsSocket.delegate = self
     }
 
-    // MARK: RawTCPSocketProtocol implementation
+
+    fileprivate func queueCall(_ block: @escaping () -> Void) {
+        QueueFactory.getQueue().async(execute: block)
+    }
+
+    fileprivate func checkReadData() {
+        if pendingReadData.count > 0 {
+            queueCall {
+                guard self.reading else {
+                    // no queued read request
+                    return
+                }
+
+                if let readLength = self.readLength {
+                    if self.pendingReadData.count >= readLength {
+                        let returnData = self.pendingReadData.subdata(in: 0..<readLength)
+                        self.pendingReadData = self.pendingReadData.subdata(in: readLength..<self.pendingReadData.count)
+
+                        self.readLength = nil
+                        self.delegate?.didRead(data: returnData, from: self)
+                        self.reading = false
+                    }
+                } else if let scanner = self.scanner {
+                    guard let (match, rest) = scanner.addAndScan(self.pendingReadData) else {
+                        return
+                    }
+
+                    self.scanner = nil
+
+                    guard let matchData = match else {
+                        // do not find match in the given length, stop now
+                        return
+                    }
+
+                    self.pendingReadData = rest
+                    self.delegate?.didRead(data: matchData, from: self)
+                    self.reading = false
+                } else {
+                    self.delegate?.didRead(data: self.pendingReadData, from: self)
+                    self.pendingReadData = Data()
+                    self.reading = false
+                }
+            }
+        }
+    }
+
+    fileprivate func checkStatus() {
+        if closeAfterWriting && remainWriteLength == 0 {
+            forceDisconnect()
+        }
+    }
+
+  
+}
+
+
+
+extension TUNTCPSocket:RawTCPSocketProtocol{
+    // MARK: RawTCPSocketProtocol 实现
 
     /// The `RawTCPSocketDelegate` instance.
     public weak var delegate: RawTCPSocketDelegate?
@@ -145,95 +203,46 @@ public class TUNTCPSocket: RawTCPSocketProtocol, TSTCPSocketDelegate {
         checkReadData()
     }
 
-    fileprivate func queueCall(_ block: @escaping () -> Void) {
-        QueueFactory.getQueue().async(execute: block)
-    }
+}
+extension TUNTCPSocket:TSTCPSocketDelegate{
+    // MARK: TSTCPSocketDelegate 实现
+      //本地停止发送任何内容。
+      //从理论上讲，本地可能仍在从远程读取数据。
+      //但是，根本无法知道本地是否仍处于打开状态，因此我们只能假设本地端在确定不再需要读取时才关闭tx。
+      open func localDidClose(_ socket: TSTCPSocket) {
+          disconnect()
+      }
 
-    fileprivate func checkReadData() {
-        if pendingReadData.count > 0 {
-            queueCall {
-                guard self.reading else {
-                    // no queued read request
-                    return
-                }
+      open func socketDidReset(_ socket: TSTCPSocket) {
+          socketDidClose(socket)
+      }
 
-                if let readLength = self.readLength {
-                    if self.pendingReadData.count >= readLength {
-                        let returnData = self.pendingReadData.subdata(in: 0..<readLength)
-                        self.pendingReadData = self.pendingReadData.subdata(in: readLength..<self.pendingReadData.count)
+      open func socketDidAbort(_ socket: TSTCPSocket) {
+          socketDidClose(socket)
+      }
 
-                        self.readLength = nil
-                        self.delegate?.didRead(data: returnData, from: self)
-                        self.reading = false
-                    }
-                } else if let scanner = self.scanner {
-                    guard let (match, rest) = scanner.addAndScan(self.pendingReadData) else {
-                        return
-                    }
+      open func socketDidClose(_ socket: TSTCPSocket) {
+          queueCall {
+              self.delegate?.didDisconnectWith(socket: self)
+              self.delegate = nil
+          }
+      }
 
-                    self.scanner = nil
+      open func didReadData(_ data: Data, from: TSTCPSocket) {
+          queueCall {
+              self.pendingReadData.append(data)
+              self.checkReadData()
+          }
+      }
 
-                    guard let matchData = match else {
-                        // do not find match in the given length, stop now
-                        return
-                    }
+      open func didWriteData(_ length: Int, from: TSTCPSocket) {
+          queueCall {
+              self.remainWriteLength -= length
+              if self.remainWriteLength <= 0 {
 
-                    self.pendingReadData = rest
-                    self.delegate?.didRead(data: matchData, from: self)
-                    self.reading = false
-                } else {
-                    self.delegate?.didRead(data: self.pendingReadData, from: self)
-                    self.pendingReadData = Data()
-                    self.reading = false
-                }
-            }
-        }
-    }
-
-    fileprivate func checkStatus() {
-        if closeAfterWriting && remainWriteLength == 0 {
-            forceDisconnect()
-        }
-    }
-
-    // MARK: TSTCPSocketDelegate implementation
-    // The local stop sending anything.
-    // Theoretically, the local may still be reading data from remote.
-    // However, there is simply no way to know if the local is still open, so we can only assume that the local side close tx only when it decides that it does not need to read anymore.
-    open func localDidClose(_ socket: TSTCPSocket) {
-        disconnect()
-    }
-
-    open func socketDidReset(_ socket: TSTCPSocket) {
-        socketDidClose(socket)
-    }
-
-    open func socketDidAbort(_ socket: TSTCPSocket) {
-        socketDidClose(socket)
-    }
-
-    open func socketDidClose(_ socket: TSTCPSocket) {
-        queueCall {
-            self.delegate?.didDisconnectWith(socket: self)
-            self.delegate = nil
-        }
-    }
-
-    open func didReadData(_ data: Data, from: TSTCPSocket) {
-        queueCall {
-            self.pendingReadData.append(data)
-            self.checkReadData()
-        }
-    }
-
-    open func didWriteData(_ length: Int, from: TSTCPSocket) {
-        queueCall {
-            self.remainWriteLength -= length
-            if self.remainWriteLength <= 0 {
-
-                self.delegate?.didWrite(data: nil, by: self)
-                self.checkStatus()
-            }
-        }
-    }
+                  self.delegate?.didWrite(data: nil, by: self)
+                  self.checkStatus()
+              }
+          }
+      }
 }

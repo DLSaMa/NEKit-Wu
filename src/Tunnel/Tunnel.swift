@@ -87,7 +87,6 @@ public class Tunnel: NSObject, SocketDelegate {
         guard !self.isCancelled else {
             return
         }
-        
         self.proxySocket.openSocket() //HTTPTCPSocket 按分析，最终会从新连接的socket中读取数据并返回到prxySocket对象中的didRead接口中来
         self._status = .readingRequest
         self.observer?.signal(.opened(self)) //枚举信号， 通道运行 提示当前socket状态，即行为状态

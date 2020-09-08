@@ -19,7 +19,7 @@ func == (left: ConnectInfo, right: ConnectInfo) -> Bool {
 
 /// This stack tranmits UDP packets directly.
 public class UDPDirectStack: IPStackProtocol {
-    fileprivate var activeSockets: [ConnectInfo: NWUDPSocket] = [:]
+    fileprivate var activeSockets: [ConnectInfo: NWUDPSocket] = [:] //字典类型 根据会话信息对应起来的 socket
     public var outputFunc: (([Data], [NSNumber]) -> Void)!
     fileprivate let queue: DispatchQueue = DispatchQueue(label: "NEKit.UDPDirectStack.SocketArrayQueue", attributes: [])
 
@@ -60,9 +60,8 @@ public class UDPDirectStack: IPStackProtocol {
         }
     }
 
-    
-
-    fileprivate func input(_ packetData: Data) {
+    fileprivate func input(_ packetDbata: Data) {
+        //处理和构建IP数据包的类。
         guard let packet = IPPacket(packetData: packetData) else {
             return
         }
@@ -76,36 +75,8 @@ public class UDPDirectStack: IPStackProtocol {
         socket.write(data: payload!)
     }
 
-    fileprivate func findSocket(connectInfo: ConnectInfo?, socket: NWUDPSocket?) -> (ConnectInfo, NWUDPSocket)? {
-        var result: (ConnectInfo, NWUDPSocket)?
-
-        queue.sync {
-            if connectInfo != nil {
-                guard let sock = self.activeSockets[connectInfo!] else {
-                    result = nil
-                    return
-                }
-                result = (connectInfo!, sock)
-                return
-            }
-
-            guard let socket = socket else {
-                result = nil
-                return
-            }
-
-            guard let index = self.activeSockets.firstIndex(where: { _, sock in
-                return socket === sock
-            }) else {
-                result = nil
-                return
-            }
-
-            result = self.activeSockets[index]
-        }
-        return result
-    }
-
+ 
+    //针对数据创建socket
     fileprivate func findOrCreateSocketForPacket(_ packet: IPPacket) -> (ConnectInfo, NWUDPSocket)? {
         // swiftlint:disable:next force_cast
         let udpParser = packet.protocolParser as! UDPProtocolParser
@@ -124,7 +95,6 @@ public class UDPDirectStack: IPStackProtocol {
         }
 
         udpSocket.delegate = self
-
         queue.sync {
             self.activeSockets[connectInfo] = udpSocket
         }
@@ -132,8 +102,42 @@ public class UDPDirectStack: IPStackProtocol {
     }
 
  
+    fileprivate func findSocket(connectInfo: ConnectInfo?, socket: NWUDPSocket?) -> (ConnectInfo, NWUDPSocket)? {
+         var result: (ConnectInfo, NWUDPSocket)?
+
+         queue.sync {
+             if connectInfo != nil {
+                 guard let sock = self.activeSockets[connectInfo!] else {
+                     result = nil
+                     return
+                 }
+                 result = (connectInfo!, sock)
+                 return
+             }
+
+             guard let socket = socket else {
+                 result = nil
+                 return
+             }
+
+             guard let index = self.activeSockets.firstIndex(where: { _, sock in
+                 return socket === sock
+             }) else {
+                 result = nil
+                 return
+             }
+
+             result = self.activeSockets[index]
+         }
+         return result
+     }
+
    
 }
+
+
+
+
 
 extension UDPDirectStack : NWUDPSocketDelegate{
     public func didReceive(data: Data, from: NWUDPSocket) {

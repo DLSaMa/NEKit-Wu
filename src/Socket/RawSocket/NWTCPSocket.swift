@@ -16,7 +16,7 @@ public class NWTCPSocket: NSObject, RawTCPSocketProtocol {
     private var scanning: Bool = false
     private var readDataPrefix: Data?
 
-    // MARK: RawTCPSocketProtocol implementation
+    // MARK: RawTCPSocketProtocol 实现
 
     /// The `RawTCPSocketDelegate` instance.
     weak open var delegate: RawTCPSocketDelegate?
@@ -72,7 +72,7 @@ public class NWTCPSocket: NSObject, RawTCPSocketProtocol {
         }
 
         guard let connection = RawSocketFactory.TunnelProvider?.createTCPConnection(to: endpoint, enableTLS: enableTLS, tlsParameters: tlsParameters, delegate: nil) else {
-            // This should only happen when the extension is already stopped and `RawSocketFactory.TunnelProvider` is set to `nil`.
+            // 仅当扩展已经停止并且RawSocketFactory.TunnelProvider设置为nil时，才应该发生这种情况。
             return
         }
 

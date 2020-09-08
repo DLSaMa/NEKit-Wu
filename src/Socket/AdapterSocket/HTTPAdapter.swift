@@ -58,53 +58,57 @@ public class HTTPAdapter: AdapterSocket {
         } catch {}
     }
 
+  
+}
+
+extension HTTPAdapter:RawTCPSocketDelegate{
     override public func didConnectWith(socket: RawTCPSocketProtocol) {
-        super.didConnectWith(socket: socket)
+          super.didConnectWith(socket: socket)
 
-        guard let url = URL(string: "\(session.host):\(session.port)") else {
-            observer?.signal(.errorOccured(HTTPAdapterError.invalidURL, on: self))
-            disconnect()
-            return
-        }
-        let message = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "CONNECT" as CFString, url as CFURL, kCFHTTPVersion1_1).takeRetainedValue()
-        if let authData = auth {
-            CFHTTPMessageSetHeaderFieldValue(message, "Proxy-Authorization" as CFString, authData.authString() as CFString?)
-        }
-        CFHTTPMessageSetHeaderFieldValue(message, "Host" as CFString, "\(session.host):\(session.port)" as CFString?)
-        CFHTTPMessageSetHeaderFieldValue(message, "Content-Length" as CFString, "0" as CFString?)
+          guard let url = URL(string: "\(session.host):\(session.port)") else {
+              observer?.signal(.errorOccured(HTTPAdapterError.invalidURL, on: self))
+              disconnect()
+              return
+          }
+          let message = CFHTTPMessageCreateRequest(kCFAllocatorDefault, "CONNECT" as CFString, url as CFURL, kCFHTTPVersion1_1).takeRetainedValue()
+          if let authData = auth {
+              CFHTTPMessageSetHeaderFieldValue(message, "Proxy-Authorization" as CFString, authData.authString() as CFString?)
+          }
+          CFHTTPMessageSetHeaderFieldValue(message, "Host" as CFString, "\(session.host):\(session.port)" as CFString?)
+          CFHTTPMessageSetHeaderFieldValue(message, "Content-Length" as CFString, "0" as CFString?)
 
-        guard let requestData = CFHTTPMessageCopySerializedMessage(message)?.takeRetainedValue() else {
-            observer?.signal(.errorOccured(HTTPAdapterError.serailizationFailure, on: self))
-            disconnect()
-            return
-        }
+          guard let requestData = CFHTTPMessageCopySerializedMessage(message)?.takeRetainedValue() else {
+              observer?.signal(.errorOccured(HTTPAdapterError.serailizationFailure, on: self))
+              disconnect()
+              return
+          }
 
-        internalStatus = .readingResponse
-        write(data: requestData as Data)
-        socket.readDataTo(data: Utils.HTTPData.DoubleCRLF)
-    }
+          internalStatus = .readingResponse
+          write(data: requestData as Data)
+          socket.readDataTo(data: Utils.HTTPData.DoubleCRLF)
+      }
 
-    override public func didRead(data: Data, from socket: RawTCPSocketProtocol) {
-        super.didRead(data: data, from: socket)
+      override public func didRead(data: Data, from socket: RawTCPSocketProtocol) {
+          super.didRead(data: data, from: socket)
 
-        switch internalStatus {
-        case .readingResponse:
-            internalStatus = .forwarding
-            observer?.signal(.readyForForward(self))
-            delegate?.didBecomeReadyToForwardWith(socket: self)
-        case .forwarding:
-            observer?.signal(.readData(data, on: self))
-            delegate?.didRead(data: data, from: self)
-        default:
-            return
-        }
-    }
+          switch internalStatus {
+          case .readingResponse:
+              internalStatus = .forwarding
+              observer?.signal(.readyForForward(self))
+              delegate?.didBecomeReadyToForwardWith(socket: self)
+          case .forwarding:
+              observer?.signal(.readData(data, on: self))
+              delegate?.didRead(data: data, from: self)
+          default:
+              return
+          }
+      }
 
-    override public func didWrite(data: Data?, by socket: RawTCPSocketProtocol) {
-        super.didWrite(data: data, by: socket)
-        if internalStatus == .forwarding {
-            observer?.signal(.wroteData(data, on: self))
-            delegate?.didWrite(data: data, by: self)
-        }
-    }
+      override public func didWrite(data: Data?, by socket: RawTCPSocketProtocol) {
+          super.didWrite(data: data, by: socket)
+          if internalStatus == .forwarding {
+              observer?.signal(.wroteData(data, on: self))
+              delegate?.didWrite(data: data, by: self)
+          }
+      }
 }
