@@ -22,12 +22,12 @@ open class DNSSession {
 
     init?(message: DNSMessage) {
         guard message.messageType == .query else {
-            DDLogError("DNSSession can only be initailized by a DNS query.")
+            DDLogError("DNSSession can only be initailized by a DNS query.")//NSSession只能通过DNS查询初始化
             return nil
         }
 
         guard message.queries.count == 1 else {
-            DDLogError("Expecting the DNS query has exact one query entry.")
+            DDLogError("Expecting the DNS query has exact one query entry.")//期望DNS查询具有确切的一个查询条目。
             return nil
         }
 

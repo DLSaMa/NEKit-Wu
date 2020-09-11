@@ -1,8 +1,8 @@
 import Foundation
 
-/// The rule matches every request and returns direct adapter.
+///规则匹配每个请求并返回直接适配器。
 ///
-/// This is equivalent to create an `AllRule` with a `DirectAdapterFactory`.
+///等价于使用`DirectAdapterFactory`创建`AllRule`。
 open class DirectRule: AllRule {
     open override var description: String {
         return "<DirectRule>"

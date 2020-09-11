@@ -17,7 +17,7 @@ func == (left: ConnectInfo, right: ConnectInfo) -> Bool {
 }
 
 
-/// This stack tranmits UDP packets directly.
+/// This stack tranmits UDP packets directly. 该堆栈直接传输UDP数据包。
 public class UDPDirectStack: IPStackProtocol {
     fileprivate var activeSockets: [ConnectInfo: NWUDPSocket] = [:] //字典类型 根据会话信息对应起来的 socket
     public var outputFunc: (([Data], [NSNumber]) -> Void)!
