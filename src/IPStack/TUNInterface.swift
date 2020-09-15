@@ -1,7 +1,10 @@
 import Foundation
 import NetworkExtension
 
-/// TUN接口提供了一种方案，用于注册一组IP堆栈（实现“ IPStackProtocol”）以处理来自虚拟TUN接口的IP数据包。
+
+/// TUN interface provide a scheme to register a set of IP Stacks (implementing `IPStackProtocol`) to process IP packets from a virtual TUN interface.
+//TUN接口提供了一种方案，用于注册一组IP堆栈（实现“ IPStackProtocol”）以处理来自虚拟TUN接口的IP数据包。
+
 open class TUNInterface {
     fileprivate weak var packetFlow: NEPacketTunnelFlow?
     fileprivate var stacks: [IPStackProtocol] = []
@@ -28,12 +31,13 @@ open class TUNInterface {
     }
     
     /**
-    停止处理数据包，应在释放接口之前调用它。
+
+     停止处理数据包，应在释放接口之前调用它。
+
      */
     open func stop() {
         QueueFactory.executeOnQueueSynchronizedly {
             self.packetFlow = nil
-            
             for stack in self.stacks {
                 stack.stop()
             }
@@ -53,7 +57,9 @@ open class TUNInterface {
         }
     }
     
+    //读取数据
     fileprivate func readPackets() {
+        //packets 和 version 各是一个对象数组，相对应的数组索引中的nsdata和nsnumber 代表一个数据包，
         packetFlow?.readPackets { packets, versions in
             QueueFactory.getQueue().async {
                 for (i, packet) in packets.enumerated() {

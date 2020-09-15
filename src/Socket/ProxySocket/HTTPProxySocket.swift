@@ -1,51 +1,51 @@
 import Foundation
-
+enum HTTPProxyReadStatus: CustomStringConvertible {
+      case invalid,
+      readingFirstHeader,
+      pendingFirstHeader,
+      readingHeader,
+      readingContent,
+      stopped
+      
+      var description: String {
+          switch self {
+          case .invalid:
+              return "invalid"
+          case .readingFirstHeader:
+              return "reading first header"
+          case .pendingFirstHeader:
+              return "waiting to send first header"
+          case .readingHeader:
+              return "reading header (forwarding)"
+          case .readingContent:
+              return "reading content (forwarding)"
+          case .stopped:
+              return "stopped"
+          }
+      }
+  }
+  
+  enum HTTPProxyWriteStatus: CustomStringConvertible {
+      case invalid,
+      sendingConnectResponse,
+      forwarding,
+      stopped
+      
+      var description: String {
+          switch self {
+          case .invalid:
+              return "invalid"
+          case .sendingConnectResponse:
+              return "sending response header for CONNECT"
+          case .forwarding:
+              return "waiting to begin forwarding data"
+          case .stopped:
+              return "stopped"
+          }
+      }
+  }
 public class HTTPProxySocket: ProxySocket {
-    enum HTTPProxyReadStatus: CustomStringConvertible {
-        case invalid,
-        readingFirstHeader,
-        pendingFirstHeader,
-        readingHeader,
-        readingContent,
-        stopped
-        
-        var description: String {
-            switch self {
-            case .invalid:
-                return "invalid"
-            case .readingFirstHeader:
-                return "reading first header"
-            case .pendingFirstHeader:
-                return "waiting to send first header"
-            case .readingHeader:
-                return "reading header (forwarding)"
-            case .readingContent:
-                return "reading content (forwarding)"
-            case .stopped:
-                return "stopped"
-            }
-        }
-    }
-    
-    enum HTTPProxyWriteStatus: CustomStringConvertible {
-        case invalid,
-        sendingConnectResponse,
-        forwarding,
-        stopped
-        
-        var description: String {
-            switch self {
-            case .invalid:
-                return "invalid"
-            case .sendingConnectResponse:
-                return "sending response header for CONNECT"
-            case .forwarding:
-                return "waiting to begin forwarding data"
-            case .stopped:
-                return "stopped"
-            }
-        }
-    }
+  
     /// The remote host to connect to.
     public var destinationHost: String!
     
@@ -82,7 +82,7 @@ public class HTTPProxySocket: ProxySocket {
         readStatus = .readingFirstHeader
         socket.readDataTo(data: Utils.HTTPData.DoubleCRLF)
     }
-    
+    //MARK: socketProtocol  协议 继承自父类遵循的协议
     override public func readData() {
         guard !isCancelled else {
             return
@@ -113,21 +113,26 @@ public class HTTPProxySocket: ProxySocket {
         
     }
     
-    
-    
 
     //MARK: 此处实现的是TCP
+
+    //AMRK:RawTCPSocketDelegate   此类是GCDTCPSocket 的代理类，处理的是 其RawTCPSocketDelegate 代理方法
 
     // swiftlint:disable function_body_length
     // swiftlint:disable cyclomatic_complexity
     /**
-     The socket did read some data.
+     套接字确实读取了一些数据。
      
-     - parameter data:    The data read from the socket.
-     - parameter from:    The socket where the data is read from.
+     -参数数据：从套接字读取的数据。
+     -参数自：从中读取数据的套接字。
+     */
+    
+    //MARK:最终会从新连接的socket中读取数据并返回到prxySocket对象中的didRead接口中来。 proxySocket 是此类的代理
+    /*
+     从数据包中获取目标主机i地址与端口号，封装成ConnectSession对象，并回传给Tunnel对象的didReceive接口
      */
     override public func didRead(data: Data, from: RawTCPSocketProtocol) {
-        super.didRead(data: data, from: from)
+        super.didRead(data: data, from: from)  //只是调用一下observer
         
         let result: HTTPStreamScanner.Result
         do {
@@ -155,7 +160,7 @@ public class HTTPProxySocket: ProxySocket {
             
             session = ConnectSession(host: destinationHost!, port: destinationPort!)
             observer?.signal(.receivedRequest(session!, on: self))
-            delegate?.didReceive(session: session!, from: self)
+            delegate?.didReceive(session: session!, from: self)   //
         case (.readingHeader, .header(let header)):
             currentHeader = header
             currentHeader.removeProxyHeader()

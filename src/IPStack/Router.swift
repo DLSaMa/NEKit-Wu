@@ -1,6 +1,6 @@
 import Foundation
 import CocoaLumberjackSwift
-
+//路由处理
 public class Router {
     var IPv4NATRoutes: [Port: (IPv4Address, Port)] = [:]
     let interfaceIP: IPv4Address

@@ -9,8 +9,8 @@ public enum TransportProtocol: UInt8 {
     case icmp = 1, tcp = 6, udp = 17
 }
 
-/// The class to process and build IP packet.
-/// - note: Only IPv4 is supported as of now.
+///处理和构建IP数据包的类。
+///-注意：到目前为止，仅支持IPv4。
 open class IPPacket {
     /**
    在不解析整个数据包的情况下获取IP数据包的版本。
@@ -137,27 +137,27 @@ open class IPPacket {
     ///-注意：从理论上讲，这应该是一个递增的数字。它可能会实现。
     var identification: UInt16 = 0
 
-    /// Offset of the current packet.
-    ///
-    /// - note: Since we do not support fragment, this is ignored and always will be zero.
+    ///当前数据包的偏移量。
+        ///
+        ///-注意：由于我们不支持片段，因此将忽略该片段，并且始终为零。
     var offset: UInt16 = 0
 
     /// TTL of the packet.
     var TTL: UInt8 = 64
 
-    /// Source IP address.
+    /// 源ip.
     var sourceAddress: IPAddress!
 
-    /// Destination IP address.
+    /// 目标ip
     var destinationAddress: IPAddress!
 
-    /// Transport protocol of the packet.
+    /// 数据包的传输协议。
     var transportProtocol: TransportProtocol!
 
-    /// Parser to parse the payload in IP packet.
+    ///解析器解析IP数据包中的有效负载。
     var protocolParser: TransportProtocolParserProtocol!
 
-    /// The data representing the packet.
+    ///代表数据包的数据。
     var packetData: Data!
 
     /**
@@ -168,10 +168,10 @@ open class IPPacket {
     /**
      Initailize an `IPPacket` with data.
      
-     - parameter packetData: The data containing a whole packet.
+     - parameter packetData: 包含整个数据包的数据。
      */
     init?(packetData: Data) {
-        // no need to validate the packet.
+        // no need to validate the packet.无需验证数据包。
 
         self.packetData = packetData
 

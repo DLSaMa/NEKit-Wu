@@ -13,17 +13,14 @@ public enum SocketBaseType {
 
 /// Factory to create `RawTCPSocket` based on configuration.
 open class RawSocketFactory {
-    /// Current active `NETunnelProvider` which creates `NWTCPConnection` instance.
-    ///
-    /// - note: Must set before any connection is created if `NWTCPSocket` or `NWUDPSocket` is used.
+    ///当前活动的NETunnelProvider，它创建NWTCPConnection实例。
+    ///-注意：如果使用`NWTCPSocket`或`NWUDPSocket`，则必须在创建任何连接之前进行设置。
     public static weak var TunnelProvider: NETunnelProvider?
 
     /**
-     Return `RawTCPSocket` instance.
-
-     - parameter type: The type of the socket.
-
-     - returns: The created socket instance.
+     返回`RawTCPSocket`实例。
+     -参数类型：套接字的类型。
+     -返回：创建的套接字实例。
      */
     public static func getRawSocket(_ type: SocketBaseType? = nil) -> RawTCPSocketProtocol {
         switch type {

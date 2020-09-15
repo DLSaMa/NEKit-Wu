@@ -14,5 +14,8 @@ public enum ProxyServerEvent: EventType {
         }
     }
 
-    case newSocketAccepted(ProxySocket, onServer: ProxyServer), tunnelClosed(Tunnel, onServer: ProxyServer), started(ProxyServer), stopped(ProxyServer)
+    case newSocketAccepted(ProxySocket, onServer: ProxyServer),
+    tunnelClosed(Tunnel, onServer: ProxyServer),
+    started(ProxyServer),
+    stopped(ProxyServer)
 }

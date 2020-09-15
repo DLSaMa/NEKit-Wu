@@ -6,9 +6,9 @@ public final class ConnectSession {
         case proxy, adapter, tunnel
     }
     
-    /// The requested host.
+    ///请求的主机。
     ///
-    /// This is the host received in the request. May be a domain, a real IP or a fake IP.
+    ///这是请求中收到的主机。 可以是域，真实IP或伪IP。
     public let requestedHost: String
     
    ///此会话的真正主机。
@@ -32,9 +32,9 @@ public final class ConnectSession {
     
     public var disconnectedBy: EventSourceEnum?
     
-    /// The resolved IP address.
+  ///解析的IP地址。
     ///
-    /// - note: This will always be real IP address.
+    ///-注意：这将始终是真实IP地址。
     public lazy var ipAddress: String = {
         [unowned self] in
         if self.isIP() {
@@ -104,7 +104,7 @@ public final class ConnectSession {
     }
     
     fileprivate func lookupRealIP() -> Bool {
-        /// If custom DNS server is set up.
+        /// 如果设置了自定义DNS服务器。
         guard let dnsServer = DNSServer.currentServer else {
             return true
         }

@@ -15,7 +15,9 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     }
     fileprivate static let _stack: TCPStack = TCPStack()
     
-   ///处理该堆栈接受的连接的代理服务器。
+
+    ///处理该堆栈接受的连接的代理服务器。
+
     ///-警告：必须在将TCPStack注册到TUNInterface之前进行设置。
     open weak var proxyServer: ProxyServer?
     
@@ -61,9 +63,11 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     }
     
     /**
-     Stop the TCP stack.
-     
-     After calling this, this stack should never be referenced. Use `TCPStack.stack` to get a new reference of the singleton.
+
+=======
+     停止TCP堆栈。
+     调用此方法后，不应再引用该堆栈。使用“ TCPStack.stack”获取单例的新引用。
+
      */
     open func stop() {
         TSIPStack.stack.delegate = nil
@@ -71,9 +75,10 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
         proxyServer = nil
     }
     
-    // MARK: TSIPStackDelegate Implementation
+    // MARK: TSIPStackDelegate 实现
     open func didAcceptTCPSocket(_ sock: TSTCPSocket) {
         DDLogDebug("Accepted a new socket from IP stack.")
+      
         let tunSocket = TUNTCPSocket(socket: sock)
         let proxySocket = DirectProxySocket(socket: tunSocket)
         self.proxyServer!.didAcceptNewSocket(proxySocket)

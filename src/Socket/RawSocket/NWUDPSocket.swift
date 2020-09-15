@@ -14,7 +14,7 @@ public protocol NWUDPSocketDelegate: class {
     func didCancel(socket: NWUDPSocket)
 }
 
-/// The wrapper for NWUDPSession.
+/// NWUDPSession的包装器。
 ///
 /// - note: This class is thread-safe.
 public class NWUDPSocket: NSObject {

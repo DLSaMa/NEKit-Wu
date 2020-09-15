@@ -1,28 +1,28 @@
 import Foundation
 
-/// Represents the port number of IP protocol.
+///表示IP协议的端口号。
 public struct Port: CustomStringConvertible, ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = UInt16
 
     fileprivate var inport: UInt16
 
     /**
-     Initialize a new instance with the port number in network byte order.
+     使用网络字节顺序的端口号初始化一个新实例。
 
-     - parameter portInNetworkOrder: The port number in network byte order.
+     -参数portInNetworkOrder：网络字节顺序的端口号。
 
-     - returns: The initailized port.
+     -返回：无符号端口。
      */
     public init(portInNetworkOrder: UInt16) {
         self.inport = portInNetworkOrder
     }
 
     /**
-     Initialize a new instance with the port number.
+     用端口号初始化一个新实例。
 
-     - parameter port: The port number.
+     -参数端口：端口号。
 
-     - returns: The initailized port.
+     -返回：无符号端口。
      */
     public init(port: UInt16) {
         self.init(portInNetworkOrder: NSSwapHostShortToBig(port))
@@ -33,11 +33,11 @@ public struct Port: CustomStringConvertible, ExpressibleByIntegerLiteral {
     }
 
     /**
-     Initialize a new instance with data in network byte order.
+  使用网络字节顺序的数据初始化一个新实例。
 
-     - parameter bytesInNetworkOrder: The port data in network byte order.
+     -参数bytesInNetworkOrder：网络字节顺序的端口数据。
 
-     - returns: The initailized port.
+     -返回：无符号端口。
      */
     public init(bytesInNetworkOrder: UnsafeRawPointer) {
         self.init(portInNetworkOrder: bytesInNetworkOrder.load(as: UInt16.self))
@@ -57,11 +57,11 @@ public struct Port: CustomStringConvertible, ExpressibleByIntegerLiteral {
     }
 
     /**
-     Run a block with the bytes of port in **network order**.
+ 以**网络顺序**运行带有端口字节的块。
 
-     - parameter block: The block to run.
+     -参数块：要运行的块。
 
-     - returns: The value the block returns.
+     -返回：块返回的值。
      */
     public mutating func withUnsafeBufferPointer<T>(_ block: (UnsafeRawBufferPointer) -> T) -> T {
         return withUnsafeBytes(of: &inport) {
