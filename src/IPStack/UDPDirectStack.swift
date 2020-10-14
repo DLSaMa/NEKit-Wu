@@ -141,7 +141,8 @@ public class UDPDirectStack: IPStackProtocol {
 
 extension UDPDirectStack : NWUDPSocketDelegate{
     public func didReceive(data: Data, from: NWUDPSocket) {
-         guard let (connectInfo, _) = findSocket(connectInfo: nil, socket: from) else {
+         guard let (connectInfo, _) =
+            findSocket(connectInfo: nil, socket: from) else {
              return
          }
 

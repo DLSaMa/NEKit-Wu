@@ -12,7 +12,7 @@ protocol TransportProtocolParserProtocol {
     func buildSegment(_ pseudoHeaderChecksum: UInt32)
 }
 
-/// Parser to process UDP packet and build packet.
+/// 解析器处理UDP数据包并构建数据包。
 class UDPProtocolParser: TransportProtocolParserProtocol {
     /// The source port.
     var sourcePort: Port!
