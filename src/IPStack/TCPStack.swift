@@ -77,6 +77,7 @@ open class TCPStack: TSIPStackDelegate, IPStackProtocol {
     
     // MARK: TSIPStackDelegate 实现
     open func didAcceptTCPSocket(_ sock: TSTCPSocket) {
+        
         DDLogDebug("Accepted a new socket from IP stack.")
       
         let tunSocket = TUNTCPSocket(socket: sock)

@@ -1,6 +1,6 @@
 import Foundation
 
-/// The rule matches the ip of the target hsot to a list of IP ranges.
+/// 该规则将目标主机的ip与IP范围列表匹配。
 open class IPRangeListRule: Rule {
     fileprivate let adapterFactory: AdapterFactory
 
@@ -12,12 +12,10 @@ open class IPRangeListRule: Rule {
     open var ranges: [IPRange] = []
 
     /**
-     Create a new `IPRangeListRule` instance.
-
-     - parameter adapterFactory: The factory which builds a corresponding adapter when needed.
-     - parameter ranges:           The list of IP ranges to match. The IP ranges are expressed in CIDR form ("127.0.0.1/8") or range form ("127.0.0.1+16777216").
-
-     - throws: The error when parsing the IP range.
+     创建一个新的IPRangeListRule实例。
+     -参数adapterFactory：用于在需要时构建相应适配器的工厂。
+     -参数范围：要匹配的IP范围列表。 IP范围以CIDR形式（“ 127.0.0.1/8”）或范围形式（“ 127.0.0.1 + 16777216”）表示。
+     -throws：解析IP范围时出错。
      */
     public init(adapterFactory: AdapterFactory, ranges: [String]) throws {
         self.adapterFactory = adapterFactory
@@ -28,12 +26,10 @@ open class IPRangeListRule: Rule {
     }
 
     /**
-     Match DNS request to this rule.
-
-     - parameter session: The DNS session to match.
-     - parameter type:    What kind of information is available.
-
-     - returns: The result of match.
+     将DNS请求与此规则匹配。
+     -参数会话：要匹配的DNS会话。
+     -参数类型：可用的信息类型。
+     -返回：匹配结果。
      */
     override open func matchDNS(_ session: DNSSession, type: DNSSessionMatchType) -> DNSSessionMatchResult {
         guard type == .ip else {
@@ -54,11 +50,9 @@ open class IPRangeListRule: Rule {
     }
 
     /**
-     Match connect session to this rule.
-
-     - parameter session: connect session to match.
-
-     - returns: The configured adapter if matched, return `nil` if not matched.
+     将连接会话与此规则匹配。
+     -参数会话：连接会话以匹配。
+     -返回：配置的适配器（如果匹配），如果不匹配，则返回“ nil”。
      */
     override open func match(_ session: ConnectSession) -> AdapterFactory? {
         guard let ip = IPAddress(fromString: session.ipAddress) else {

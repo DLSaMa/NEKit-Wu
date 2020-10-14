@@ -21,11 +21,11 @@ public final class ConnectSession {
     /// The requested port.
     public let port: Int
     
-    /// The rule to use to connect to remote.
+    /// The rule to use to connect to remote. 用于连接到远程的规则。
     public var matchedRule: Rule?
     
-    /// Whether If the `requestedHost` is an IP address.
-    public let fakeIPEnabled: Bool
+    /// Whether If the `requestedHost` is an IP address.          是否`requestedHost`是IP地址。
+    public let fakeIPEnabled: Bool  //默认是yes
     
     public var error: Error?
     public var errorSource: EventSourceEnum?
@@ -38,9 +38,9 @@ public final class ConnectSession {
     public lazy var ipAddress: String = {
         [unowned self] in
         if self.isIP() {
-            return self.host
+            return self.host  //如果是IP 直接返回IP地址
         } else {
-            let ip = Utils.DNS.resolve(self.host)
+            let ip = Utils.DNS.resolve(self.host) //手动实现根据域名解析dns地址
             
             guard self.fakeIPEnabled else {
                 return ip
@@ -76,7 +76,7 @@ public final class ConnectSession {
         }()
     
     public init?(host: String, port: Int, fakeIPEnabled: Bool = true) {
-        self.requestedHost = host
+        self.requestedHost = host // 可以是域，真实IP或伪IP。
         self.port = port
         
         self.fakeIPEnabled = fakeIPEnabled
@@ -103,6 +103,8 @@ public final class ConnectSession {
         }
     }
     
+    
+    //查找真是IP
     fileprivate func lookupRealIP() -> Bool {
         /// 如果设置了自定义DNS服务器。
         guard let dnsServer = DNSServer.currentServer else {
@@ -119,7 +121,7 @@ public final class ConnectSession {
             return true
         }
         
-        // Look up fake IP reversely should never fail.
+        // 反向查找虚假IP永远不会失败。
         guard let session = dnsServer.lookupFakeIP(address) else {
             return false
         }

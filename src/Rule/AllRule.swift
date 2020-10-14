@@ -1,6 +1,6 @@
 import Foundation
 
-/// The rule matches all DNS and connect sessions.
+/// 该规则匹配所有DNS和连接会话。
 open class AllRule: Rule {
     fileprivate let adapterFactory: AdapterFactory
 
@@ -9,9 +9,9 @@ open class AllRule: Rule {
     }
 
     /**
-     Create a new `AllRule` instance.
+     创建一个新的AllRule实例。
 
-     - parameter adapterFactory: The factory which builds a corresponding adapter when needed.
+     -参数adapterFactory：用于在需要时构建相应适配器的工厂。
      */
     public init(adapterFactory: AdapterFactory) {
         self.adapterFactory = adapterFactory
@@ -19,15 +19,13 @@ open class AllRule: Rule {
     }
 
     /**
-     Match DNS session to this rule.
-
-     - parameter session: The DNS session to match.
-     - parameter type:    What kind of information is available.
-
-     - returns: The result of match.
+     将DNS会话与此规则匹配。
+     -参数会话：要匹配的DNS会话。
+     -参数类型：可用的信息类型。
+     -返回：匹配结果。
      */
     override open func matchDNS(_ session: DNSSession, type: DNSSessionMatchType) -> DNSSessionMatchResult {
-        // only return real IP when we connect to remote directly
+        // 当我们直接连接到远程设备时，仅返回真实IP
         if let _ = adapterFactory as? DirectAdapterFactory {
             return .real
         } else {
@@ -36,11 +34,9 @@ open class AllRule: Rule {
     }
 
     /**
-     Match connect session to this rule.
-
-     - parameter session: connect session to match.
-
-     - returns: The configured adapter.
+     将连接会话与此规则匹配。
+     -参数会话：连接会话以匹配。
+     -返回：配置的适配器。
      */
     override open func match(_ session: ConnectSession) -> AdapterFactory? {
         return adapterFactory

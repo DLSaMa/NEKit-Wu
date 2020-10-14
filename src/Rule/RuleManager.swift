@@ -1,22 +1,18 @@
 import Foundation
 
-/// The class managing rules.
+/// 类管理规则。
 open class RuleManager {
-    /// The current used `RuleManager`, there is only one manager should be used at a time.
-    ///
-    /// - note: This should be set before any DNS or connect sessions.
+    ///当前使用的`RuleManager`，一次只能使用一个管理器。
+    ///-注意：应在任何DNS或连接会话之前进行设置。
     public static var currentManager: RuleManager = RuleManager(fromRules: [], appendDirect: true)
-
-    /// The rule list.
+    /// 规则列表
     var rules: [Rule] = []
-
     open var observer: Observer<RuleMatchEvent>?
 
     /**
-     Create a new `RuleManager` from the given rules.
-
-     - parameter rules:        The rules.
-     - parameter appendDirect: Whether to append a `DirectRule` at the end of the list so any request does not match with any rule go directly.
+     根据给定的规则创建一个新的“ RuleManager”。
+     -参数规则：规则。
+     -参数appendDirect：是否在列表末尾附加DirectRule，以便任何请求与任何规则都不匹配直接进行。
      */
     public init(fromRules rules: [Rule], appendDirect: Bool = false) {
         self.rules = rules
@@ -29,10 +25,9 @@ open class RuleManager {
     }
 
     /**
-     Match DNS request to all rules.
-
-     - parameter session: The DNS session to match.
-     - parameter type:    What kind of information is available.
+     将DNS请求与所有规则匹配。
+     -参数会话：要匹配的DNS会话。
+     -参数类型：可用的信息类型。
      */
     func matchDNS(_ session: DNSSession, type: DNSSessionMatchType) {
         for (i, rule) in rules[session.indexToMatch..<rules.count].enumerated() {
@@ -53,11 +48,9 @@ open class RuleManager {
     }
 
     /**
-     Match connect session to all rules.
-
-     - parameter session: connect session to match.
-
-     - returns: The matched configured adapter.
+     将连接会话与所有规则匹配。
+     -参数会话：连接会话以匹配。
+     -返回：匹配的已配置适配器。
      */
     func match(_ session: ConnectSession) -> AdapterFactory! {
         if session.matchedRule != nil {

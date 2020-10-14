@@ -34,6 +34,8 @@ open class DNSSession {
         requestMessage = message
     }
 
+    //便利构造函数 一般在对系统的类方法 扩展的时候 使用
+    // 一般的构造函数 是创建对象的，便利函数
     convenience init?(packet: IPPacket) {
         guard let message = DNSMessage(payload: packet.protocolParser.payload) else {
             return nil

@@ -86,6 +86,7 @@ public class UDPDirectStack: IPStackProtocol {
             return (connectInfo, socket)
         }
 
+        //创建会话 
         guard let session = ConnectSession(ipAddress: connectInfo.destinationAddress, port: connectInfo.destinationPort) else {
             return nil
         }
