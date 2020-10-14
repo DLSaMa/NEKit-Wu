@@ -143,7 +143,7 @@ open class IPPacket {
     var offset: UInt16 = 0
 
     /// TTL of the packet.
-    var TTL: UInt8 = 64
+    var TTL: UInt8 = 64  //TTL通常表示包在被丢弃前最多能经过的路由器个数。当记数到0时，路由器决定丢弃该包，并发送一个ICMP报文给最初的发送者。
 
     /// 源ip.
     var sourceAddress: IPAddress!
@@ -175,11 +175,11 @@ open class IPPacket {
 
         self.packetData = packetData
 
-        let scanner = BinaryDataScanner(data: packetData, littleEndian: false)
+        let scanner = BinaryDataScanner(data: packetData, littleEndian: false)//二进制扫描
 
         let vhl = scanner.readByte()!
         guard let v = IPVersion(rawValue: vhl >> 4) else {
-            DDLogError("Got unknown ip packet version \(vhl >> 4)")
+            DDLogError("Got unknown ip packet version \(vhl >> 4)")//得到了未知的IP数据包版本
             return nil
         }
         version = v

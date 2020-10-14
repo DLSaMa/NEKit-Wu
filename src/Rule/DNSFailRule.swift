@@ -1,6 +1,6 @@
 import Foundation
 
-/// The rule matches the request which failed to look up.
+/// 规则与无法查找的请求匹配。
 open class DNSFailRule: Rule {
     fileprivate let adapterFactory: AdapterFactory
 
@@ -9,9 +9,10 @@ open class DNSFailRule: Rule {
     }
 
     /**
-     Create a new `DNSFailRule` instance.
+     规则与无法查找的请求匹配。
+     创建一个新的DNSFailRule实例。
 
-     - parameter adapterFactory: The factory which builds a corresponding adapter when needed.
+     -参数adapterFactory：用于在需要时构建相应适配器的工厂。
      */
     public init(adapterFactory: AdapterFactory) {
         self.adapterFactory = adapterFactory
@@ -19,19 +20,17 @@ open class DNSFailRule: Rule {
     }
 
     /**
-     Match DNS request to this rule.
-
-     - parameter session: The DNS session to match.
-     - parameter type:    What kind of information is available.
-
-     - returns: The result of match.
+     将DNS请求与此规则匹配。
+     -参数会话：要匹配的DNS会话。
+     -参数类型：可用的信息类型。
+     -返回：匹配结果。
      */
     override open func matchDNS(_ session: DNSSession, type: DNSSessionMatchType) -> DNSSessionMatchResult {
         guard type == .ip else {
             return .unknown
         }
 
-        // only return real IP when we connect to remote directly
+        // 当我们直接连接到远程设备时，仅返回真实IP
         if session.realIP == nil {
             if let _ = adapterFactory as? DirectAdapterFactory {
                 return .real
@@ -44,11 +43,9 @@ open class DNSFailRule: Rule {
     }
 
     /**
-     Match connect session to this rule.
-
-     - parameter session: connect session to match.
-
-     - returns: The configured adapter.
+     将连接会话与此规则匹配。
+     -参数会话：连接会话以匹配。
+     -返回：配置的适配器。
      */
     override open func match(_ session: ConnectSession) -> AdapterFactory? {
         if session.ipAddress == "" {

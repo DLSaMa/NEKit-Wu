@@ -122,27 +122,6 @@ open class ProxySocket: NSObject, SocketProtocol, RawTCPSocketDelegate {
     public var status: SocketStatus {///socket的当前连接状态。
         return _status
     }
-//
-//<<<<<<< HEAD
-//    // MARK: RawTCPSocketDelegate Protocol 实现
-//    /**
-//     The socket did disconnect.
-//
-//     - parameter socket: The socket which did disconnect.
-//     */
-//    open func didDisconnectWith(socket: RawTCPSocketProtocol) {
-//        _status = .closed
-//        observer?.signal(.disconnected(self))
-//        delegate?.didDisconnectWith(socket: self)
-//    }
-//
-//    /**
-//     The socket did read some data.
-//=======
-// 
-//>>>>>>> d79782db0795a46a215202b9fd19efaca54a2611
-//
-//}
 
 
 }

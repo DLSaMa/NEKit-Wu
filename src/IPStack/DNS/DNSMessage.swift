@@ -51,6 +51,8 @@ open class DNSMessage {
 
     init() {}
 
+  
+    
     init?(payload: Data) {
         self.payload = payload
         let scanner = BinaryDataScanner(data: payload, littleEndian: false)

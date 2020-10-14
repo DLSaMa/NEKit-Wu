@@ -1,9 +1,15 @@
 import Foundation
 
-/// The rule matches the host domain to a list of predefined criteria.
+/// 该规则将主机域与预定义条件列表匹配。
 open class DomainListRule: Rule {
+    
+    //匹配标准
     public enum MatchCriterion {
-        case regex(NSRegularExpression), prefix(String), suffix(String), keyword(String), complete(String)
+        case regex(NSRegularExpression),
+        prefix(String),
+        suffix(String),
+        keyword(String),
+        complete(String)
 
         func match(_ domain: String) -> Bool {
             switch self {
@@ -27,14 +33,14 @@ open class DomainListRule: Rule {
         return "<DomainListRule>"
     }
 
-    /// The list of criteria to match to.
+    /// 要匹配的条件列表。
     open var matchCriteria: [MatchCriterion] = []
 
     /**
-     Create a new `DomainListRule` instance.
+     创建一个新的“ DomainListRule”实例。
 
-     - parameter adapterFactory: The factory which builds a corresponding adapter when needed.
-     - parameter criteria:       The list of criteria to match.
+     -参数adapterFactory：用于在需要时构建相应适配器的工厂。
+     -参数标准：要匹配的标准列表。
      */
     public init(adapterFactory: AdapterFactory, criteria: [MatchCriterion]) {
         self.adapterFactory = adapterFactory
@@ -42,12 +48,10 @@ open class DomainListRule: Rule {
     }
 
     /**
-     Match DNS request to this rule.
-
-     - parameter session: The DNS session to match.
-     - parameter type:    What kind of information is available.
-
-     - returns: The result of match.
+     将DNS请求与此规则匹配。
+     -参数会话：要匹配的DNS会话。
+     -参数类型：可用的信息类型。
+     -返回：匹配结果。
      */
     override open func matchDNS(_ session: DNSSession, type: DNSSessionMatchType) -> DNSSessionMatchResult {
         if matchDomain(session.requestMessage.queries.first!.name) {
@@ -60,11 +64,9 @@ open class DomainListRule: Rule {
     }
 
     /**
-     Match connect session to this rule.
-
-     - parameter session: connect session to match.
-
-     - returns: The configured adapter if matched, return `nil` if not matched.
+     将连接会话与此规则匹配。
+     -参数会话：连接会话以匹配。
+     -返回：配置的适配器（如果匹配），如果不匹配，则返回“ nil”。
      */
     override open func match(_ session: ConnectSession) -> AdapterFactory? {
         if matchDomain(session.host) {

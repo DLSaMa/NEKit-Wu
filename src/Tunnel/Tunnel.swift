@@ -4,34 +4,35 @@ import Resolver
 protocol TunnelDelegate : class {
     func tunnelDidClose(_ tunnel: Tunnel)
 }
-
-/// The tunnel forwards data between local and remote.
-public class Tunnel: NSObject, SocketDelegate {
+/// The status of `Tunnel`.
+public enum TunnelStatus: CustomStringConvertible {
     
-    /// The status of `Tunnel`.
-    public enum TunnelStatus: CustomStringConvertible {
-        
-        case invalid, readingRequest, waitingToBeReady, forwarding, closing, closed
-        
-        public var description: String {
-            switch self {
-            case .invalid:
-                return "invalid"
-            case .readingRequest:
-                return "reading request"
-            case .waitingToBeReady:
-                return "waiting to be ready"
-            case .forwarding:
-                return "forwarding"
-            case .closing:
-                return "closing"
-            case .closed:
-                return "closed"
-            }
+    case invalid, readingRequest, waitingToBeReady, forwarding, closing, closed
+    
+    public var description: String {
+        switch self {
+        case .invalid:
+            return "invalid"
+        case .readingRequest:
+            return "reading request"
+        case .waitingToBeReady:
+            return "waiting to be ready"
+        case .forwarding:
+            return "forwarding"
+        case .closing:
+            return "closing"
+        case .closed:
+            return "closed"
         }
     }
+}
+
+/// The tunnel forwards data between local and remote.
+public class Tunnel: NSObject {
     
-    /// 代理 socket
+
+    
+    /// 代理 socket  APP和服务端之间
     var proxySocket: ProxySocket
     
     /// 中继Socket 连接远程服务器
@@ -149,120 +150,7 @@ public class Tunnel: NSObject, SocketDelegate {
         adapterSocket!.delegate = self
         adapterSocket!.openSocketWith(session: session)
     }
-  //MARK: - socketDelegate -
-    public func didReceive(session: ConnectSession, from: ProxySocket) {
-        guard !isCancelled else {
-            return
-        }
-        
-        _status = .waitingToBeReady
-        observer?.signal(.receivedRequest(session, from: from, on: self))
-        
-        if !session.isIP() {
-            _ = Resolver.resolve(hostname: session.host, timeout: Opt.DNSTimeout) { [weak self] resolver, err in
-                QueueFactory.getQueue().async {
-                    if err != nil {
-                        session.ipAddress = ""
-                    } else {
-                        session.ipAddress = (resolver?.ipv4Result.first)!
-                    }
-                    self?.openAdapter(for: session)
-                }
-            }
-        } else {
-            session.ipAddress = session.host
-            openAdapter(for: session)
-        }
-    }
-    
-
-    
-    public func didBecomeReadyToForwardWith(socket: SocketProtocol) {
-        guard !isCancelled else {
-            return
-        }
-        
-        readySignal += 1
-        observer?.signal(.receivedReadySignal(socket, currentReady: readySignal, on: self))
-        
-        defer {
-            if let socket = socket as? AdapterSocket {
-                proxySocket.respondTo(adapter: socket)
-            }
-        }
-        if readySignal == 2 {
-            _status = .forwarding
-            proxySocket.readData()
-            adapterSocket?.readData()
-        }
-    }
-    
-    public func didDisconnectWith(socket: SocketProtocol) {
-        if !isCancelled {
-            _stopForwarding = true
-            close()
-        }
-        checkStatus()
-    }
-    
-    //
-    public func didRead(data: Data, from socket: SocketProtocol) {
-        if let socket = socket as? ProxySocket {
-            observer?.signal(.proxySocketReadData(data, from: socket, on: self))
-            
-            guard !isCancelled else {
-                return
-            }
-            adapterSocket!.write(data: data) //数据流通
-        } else if let socket = socket as? AdapterSocket {
-            observer?.signal(.adapterSocketReadData(data, from: socket, on: self))
-            
-            guard !isCancelled else {
-                return
-            }
-            proxySocket.write(data: data)
-        }
-    }
-    
-    public func didWrite(data: Data?, by socket: SocketProtocol) {
-        if let socket = socket as? ProxySocket {
-            observer?.signal(.proxySocketWroteData(data, by: socket, on: self))
-            
-            guard !isCancelled else {
-                return
-            }
-            QueueFactory.getQueue().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.microseconds(Opt.forwardReadInterval)) { [weak self] in
-                self?.adapterSocket?.readData()
-            }
-        } else if let socket = socket as? AdapterSocket {
-            observer?.signal(.adapterSocketWroteData(data, by: socket, on: self))
-            
-            guard !isCancelled else {
-                return
-            }
-            
-            proxySocket.readData()
-        }
-    }
-    
-    public func didConnectWith(adapterSocket: AdapterSocket) {
-        guard !isCancelled else {
-            return
-        }
-        
-        observer?.signal(.connectedToRemote(adapterSocket, on: self))
-    }
-    
-    public func updateAdapterWith(newAdapter: AdapterSocket) {
-        guard !isCancelled else {
-            return
-        }
-        
-        observer?.signal(.updatingAdapterSocket(from: adapterSocket!, to: newAdapter, on: self))
-        
-        adapterSocket = newAdapter
-        adapterSocket?.delegate = self
-    }
+ 
     
     fileprivate func checkStatus() {
         if isClosed {
@@ -272,4 +160,123 @@ public class Tunnel: NSObject, SocketDelegate {
             delegate = nil
         }
     }
+}
+
+
+extension Tunnel : SocketDelegate{
+    
+    //MARK: - socketDelegate -
+       public func didReceive(session: ConnectSession, from: ProxySocket) {
+           guard !isCancelled else {
+               return
+           }
+           
+           _status = .waitingToBeReady
+           observer?.signal(.receivedRequest(session, from: from, on: self))
+           
+           if !session.isIP() {
+               _ = Resolver.resolve(hostname: session.host, timeout: Opt.DNSTimeout) { [weak self] resolver, err in
+                   QueueFactory.getQueue().async {
+                       if err != nil {
+                           session.ipAddress = ""
+                       } else {
+                           session.ipAddress = (resolver?.ipv4Result.first)!
+                       }
+                       self?.openAdapter(for: session)
+                   }
+               }
+           } else {
+               session.ipAddress = session.host
+               openAdapter(for: session)
+           }
+       }
+       
+
+       
+       public func didBecomeReadyToForwardWith(socket: SocketProtocol) {
+           guard !isCancelled else {
+               return
+           }
+           
+           readySignal += 1
+           observer?.signal(.receivedReadySignal(socket, currentReady: readySignal, on: self))
+           
+           defer {
+               if let socket = socket as? AdapterSocket {
+                   proxySocket.respondTo(adapter: socket)
+               }
+           }
+           if readySignal == 2 {
+               _status = .forwarding
+               proxySocket.readData()
+               adapterSocket?.readData()
+           }
+       }
+       
+       public func didDisconnectWith(socket: SocketProtocol) {
+           if !isCancelled {
+               _stopForwarding = true
+               close()
+           }
+           checkStatus()
+       }
+       
+       //
+       public func didRead(data: Data, from socket: SocketProtocol) {
+           if let socket = socket as? ProxySocket {
+               observer?.signal(.proxySocketReadData(data, from: socket, on: self))
+               
+               guard !isCancelled else {
+                   return
+               }
+               adapterSocket!.write(data: data) //数据流通
+           } else if let socket = socket as? AdapterSocket {
+               observer?.signal(.adapterSocketReadData(data, from: socket, on: self))
+               
+               guard !isCancelled else {
+                   return
+               }
+               proxySocket.write(data: data)
+           }
+       }
+       
+       public func didWrite(data: Data?, by socket: SocketProtocol) {
+           if let socket = socket as? ProxySocket {
+               observer?.signal(.proxySocketWroteData(data, by: socket, on: self))
+               
+               guard !isCancelled else {
+                   return
+               }
+               QueueFactory.getQueue().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.microseconds(Opt.forwardReadInterval)) { [weak self] in
+                   self?.adapterSocket?.readData()
+               }
+           } else if let socket = socket as? AdapterSocket {
+               observer?.signal(.adapterSocketWroteData(data, by: socket, on: self))
+               
+               guard !isCancelled else {
+                   return
+               }
+               
+               proxySocket.readData()
+           }
+       }
+       
+       public func didConnectWith(adapterSocket: AdapterSocket) {
+           guard !isCancelled else {
+               return
+           }
+           
+           observer?.signal(.connectedToRemote(adapterSocket, on: self))
+       }
+       
+       public func updateAdapterWith(newAdapter: AdapterSocket) {
+           guard !isCancelled else {
+               return
+           }
+           
+           observer?.signal(.updatingAdapterSocket(from: adapterSocket!, to: newAdapter, on: self))
+           
+           adapterSocket = newAdapter
+           adapterSocket?.delegate = self
+       }
 }
