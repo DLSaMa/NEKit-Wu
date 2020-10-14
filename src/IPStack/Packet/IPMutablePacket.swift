@@ -6,7 +6,6 @@ enum ChangeType {
 
 public class IPMutablePacket {
     // Support only IPv4 for now
-
     let version: IPVersion
     let proto: TransportType
     let IPHeaderLength: Int
